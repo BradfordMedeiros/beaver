@@ -86,9 +86,10 @@ builds/
 		topresource/
 		resource-name1/
 		someinlineresourcename/  
+		coolbinary/
 	additional-data
 		binary-versions
-			somebinary:0.2/
+			coolbinary:0.2/
 				artificats go here
 		
 		
@@ -104,6 +105,8 @@ prebuild-hook: somescript1.sh
 postbuild-hook: somescript2.sh
 should-continue: somescript3.sh
 should-build: somescript4.sh
+check-dependencies: somescripttovalidateifdependenciesshapevalid.sh (maybe type thing would be cool here)
+
 options: 
 	github-url: someurltogithubproject	
 depends-on:	
@@ -111,10 +114,10 @@ depends-on:
 	- name: someinlineresourcename
 	  plugin-type: slack
 	  options: "default channel"
-	- resource-name: binary-example
+	- resource-name: cool binary
 	  plugin-type: binary-versions
 	  options:
-		name: somebinary
+		url: /filesystempathtobinary
 		version: 0.2 (latest?)
 	  
 
