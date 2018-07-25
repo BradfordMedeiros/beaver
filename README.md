@@ -11,6 +11,8 @@
 	-- if you really need it to be, use  proper language  package managers
 	-- i  guess....
  
+ - way to init beaver with system parameters so we can do things like determine if we are building on arm vs x86?  
+ -- system parameter ideas:  {{ System.Time , System.OS, System.Arch }}  
 usage:
 ~~~~
 beaver init:
