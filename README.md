@@ -64,6 +64,8 @@ build-tools/			// idea of this being separate from plugins is so this could be r
 		/ teardown.sh
 	slack 
 		/ same as above
+	binary-artificacts
+		/ same as above
 
 plugins/
 	github
@@ -74,6 +76,9 @@ plugins/
 		/ teardown.sh
 	slack 
 		/ same as above
+	binary-artifacts
+		-> add resource might actually pull the binaries?
+	
 		
 			
 builds/
@@ -81,6 +86,11 @@ builds/
 		topresource/
 		resource-name1/
 		someinlineresourcename/  
+	additional-data
+		binary-versions
+			somebinary:0.2/
+				artificats go here
+		
 		
 ~~~~	
 
@@ -95,12 +105,18 @@ postbuild-hook: somescript2.sh
 should-continue: somescript3.sh
 should-build: somescript4.sh
 options: 
-	github-url: someurltogithubproject
+	github-url: someurltogithubproject	
 depends-on:	
-	- resource-name1
+	- resource-name
 	- name: someinlineresourcename
 	  plugin-type: slack
 	  options: "default channel"
+	- resource-name: binary-example
+	  plugin-type: binary-versions
+	  options:
+		name: somebinary
+		version: 0.2 (latest?)
+	  
 
 ~~~~
 
