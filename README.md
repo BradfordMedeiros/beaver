@@ -49,6 +49,29 @@ lists the builds that would be done if failing builds were corrected
 beaver tree 
 prints a graph of the dependencies
 
+beaver grab <artifact name> <destination name> <info destination>
+
+beaver mqtton <servername> <topic-prefix> (defaults to /beaver)
+publish data to mqtt server
+
+beaver mqttoff
+publish data to mqtt server
+
+beaver start 
+beaver stop
+
+~~~~
+Topics:
+
+/beaver/status 
+	on/off
+	
+/beaver/<dependency-name>/info    				  // general info about a dependency (name, description, etc)	
+/beaver/<dependency-name>/build-status	          // building, done, waiting, error
+/beaver/<dependency-name>/last-build-time         // last build time of  the dependency
+/beaver/<dependency-name>/last-build-length       // length of last build
+~~~~
+
 
 ~~~~
 
@@ -64,8 +87,10 @@ build-tools/			// idea of this being separate from plugins is so this could be r
 		/ teardown.sh
 	slack 
 		/ same as above
-	binary-artificacts
+	binary-artifacts
 		/ same as above
+		
+		
 
 plugins/
 	github
@@ -105,6 +130,8 @@ prebuild-hook: somescript1.sh
 postbuild-hook: somescript2.sh
 should-continue: somescript3.sh
 should-build: somescript4.sh
+time-limit:   1m  // kill the build after this amount of time
+after-time: somescript.sh  // script you can call after a certain amount of time (maybe to send a notification)
 check-dependencies: somescripttovalidateifdependenciesshapevalid.sh (maybe type thing would be cool here)
 
 options: 
