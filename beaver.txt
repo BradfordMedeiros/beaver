@@ -1,0 +1,15 @@
+
+takes in string, returns some commandstruct
+-  no external dependencies
+parse command 
+command-types
+
+takes in commandstruct, executes command 
+- depends on command types, passes in commandstruct.payload
+execute command
+
+business logic:
+validate config
+
+
+

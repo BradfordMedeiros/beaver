@@ -4,15 +4,11 @@
  - stamp each level with the current values, and all the dependencies, so we can trace it. 
  - be able to zip whole folder and transplant to another pc and be able to use this as a cache
  - encryption for build verification? add some encrypted hash or something, if can decrypt is we know we made the build
- - mqtt hooks for everything.  this is cool because we can do the whole dashboard stuff
- 
- - question: to include or not to include specific versions?
-	-- leaning toward no since i want things to be using up to date dependencies anyway
-	-- if you really need it to be, use  proper language  package managers
-	-- i  guess....
- 
+ - mqtt hooks for everything.  this is cool because we can do the whole dashboard stuff 
  - way to init beaver with system parameters so we can do things like determine if we are building on arm vs x86?  
- -- system parameter ideas:  {{ System.Time , System.OS, System.Arch }}  
+ -- system parameter ideas:  {{ System.Time , System.OS, System.Arch }} 
+ -- also some passed in config values that can be used (config, build.sh overrides, env overrides?)
+ 
 usage:
 ~~~~
 beaver init:
@@ -146,7 +142,7 @@ depends-on:
 	- resource-name: cool binary
 	  plugin-type: binary-versions
 	  options:
-		url: /filesystempathtobinary
+		url: /filesystempathtobinary
 		version: 0.2 (latest?)
 	  
 
