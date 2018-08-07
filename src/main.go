@@ -9,6 +9,7 @@ import (
 import "./parseCommand"
 import "./executeCommand"
 import "./dependencyGraph"
+import "./parseConfig"
 
 type Command struct {
 	commandType string;
@@ -45,5 +46,7 @@ func main(){
 	val, _ := json.Marshal(*graph)
 	valString := string(val)
 	fmt.Println(valString)
+
+	parseConfig.ParseConfig()
 
 }
