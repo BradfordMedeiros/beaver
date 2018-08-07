@@ -10,5 +10,32 @@
 	this should only have the functions that do this
 
 	the actually mechanism to parse and then add should be done elsewhere
-	
+
+
 */
+
+func setupPlugins(){
+
+}
+
+func teardownPlugins(){
+
+}
+
+func isValidResource(){
+
+}
+
+func addPluginResource(){
+
+}
+
+func removePluginResource(){
+
+}
+
+func getPlugins(){
+
+}
+
+
