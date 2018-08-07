@@ -131,6 +131,10 @@ should-build: somescript4.sh
 time-limit:   1m  // kill the build after this amount of time
 after-time: somescript.sh  // script you can call after a certain amount of time (maybe to send a notification)
 check-dependencies: somescripttovalidateifdependenciesshapevalid.sh (maybe type thing would be cool here)
+labels: 
+	- projectName: project name here	// this allows you to do: beaver list projects
+						// beaver list {.type="buildThings" } // etc
+						// idea is that this is simple metadata to be able to query
 
 options: 
 	github-url: someurltogithubproject	
