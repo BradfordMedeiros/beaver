@@ -4,8 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"net/http"
-	"strconv"
 	"os/exec"
+	"strconv"
 )
 
 type Options struct {
@@ -46,12 +46,12 @@ func createHttpServer(endpoint string, port uint, onRequest func()) {
 // maybe want rate limiter too, but idk for now
 func getCallExternalScript(scriptLocation string) func() {
 	return func() {
-		err:= exec.Command("/bin/sh", "-c", scriptLocation).Run()
+		err := exec.Command("/bin/sh", "-c", scriptLocation).Run()
 		if err != nil {
 			fmt.Println("error executing script")
 			fmt.Println(err)
 		}
-		
+
 	}
 }
 
