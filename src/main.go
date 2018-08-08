@@ -52,7 +52,7 @@ func main(){
 
 	parseConfig.ParseConfig()
 	*/
-	plugs := plugins.GetPlugins((*options).PluginDirectory)
+	plugs := plugins.GetPlugins(options.PluginDirectory)
 
 	if options.Verbose {
 		fmt.Println("Number of plugins: \n", len(plugs))
