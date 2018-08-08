@@ -1,3 +1,8 @@
 #/usr/bin/env sh
 
-echo "build  placeholder"
+(
+	cd ../common/hooker
+	./build.sh
+)
+
+cp ../common/hooker/build/hooker ./src
