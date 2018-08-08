@@ -10,10 +10,15 @@ import (
 type Options struct {
 	port uint;
 	url string;
+	scriptLocation string;
 }
 
 func getOptions () Options{
-	option := Options { port: 3000, url: "/someendpoint" }
+	option := Options { 
+		port: 3000, 
+		url: "/someendpoint",
+		scriptLocation: "somefilesystempath",
+	}
 	return option
 }
 
@@ -36,9 +41,8 @@ func main() {
 
 	fmt.Println("port is: ", option.port)
 	fmt.Println("url is: ", option.url)
+	fmt.Println("script is: ", option.scriptLocation)
 
-	createHttpServer(option.url, option.port, func(){
-		fmt.Println("external func called")
-	})
+	createHttpServer(option.url, option.port, getCallExternalScript(option.scriptLocation))
 }
 
