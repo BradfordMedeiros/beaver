@@ -12,19 +12,22 @@ type Options struct {
 	port uint;
 	url string;
 	scriptLocation string;
+	verbose bool;
 }
 
 // @todo parse flags for real using flag package
 func getOptions () Options{
 	port := flag.Uint("p", 8000, "port number to listen on")
 	url := flag.String("u", "/", "url to listen on")
+	verbose := flag.Bool("v", false, "enable verbose output")
 
 	flag.Parse()
 
-	option := Options { 
+	option := Options {
 		port: *port,
 		url: *url,
 		scriptLocation: "somefilesystempath",
+		verbose: *verbose,
 	}
 
 	return option
@@ -49,9 +52,11 @@ func getCallExternalScript(scriptLocation string) func(){
 func main() {
 	option := getOptions()
 
-	fmt.Println("port is: ", option.port)
-	fmt.Println("url is: ", option.url)
-	fmt.Println("script is: ", option.scriptLocation)
+	if option.verbose {
+		fmt.Println("port is: ", option.port)
+		fmt.Println("url is: ", option.url)
+		fmt.Println("script is: ", option.scriptLocation)
+	}
 
 	createHttpServer(option.url, option.port, getCallExternalScript(option.scriptLocation))
 }
