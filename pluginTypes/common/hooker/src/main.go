@@ -20,7 +20,7 @@ func getOptions() Options {
 	port := flag.Uint("p", 8000, "port number to listen on")
 	url := flag.String("u", "/", "url to listen on")
 	verbose := flag.Bool("v", false, "enable verbose output")
-	scriptLocation := flag.String("s", "./test.sh", "location of script to call when hook triggered")
+	scriptLocation := flag.String("s", "./hook.sh", "location of script to call when hook triggered")
 
 	flag.Parse()
 
