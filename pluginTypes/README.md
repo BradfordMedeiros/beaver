@@ -12,5 +12,6 @@ you can theoretically couple some of these mechanisms.  In general coupling the 
 do not want to couple the alert with the build mechanisms, b/c want to support master slave mode that may result in these running on different boxes.
 
 
-also keep in mind that build.sh should be able to be run  against  more  than a single instance.
-for example you may have several build products of a single type.
+also keep in mind that the alerting and build mechanisms should be able to be run  against  more  than a single instance.
+for example you may have several build products of a single type.  they should also be designed to run across multiple boxes, although it might make 
+sense build against a single box if you know this will be run on a single server.
