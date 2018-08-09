@@ -95,10 +95,27 @@ func main() {
 		os.Exit(0)
 	}
 
+	build := func(){
+		plugs, err := plugins.GetPlugins(options.PluginDirectory)
+		if err != nil {
+			fmt.Println("error reading plugins")
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		for _, plug := range plugs {
+			err := plug.Build("testid", "{\"height\" : 2}")
+			if err != nil {
+				fmt.Println("error: ", err)
+			}
+		}
+	}
+
 	commandMap := map[string]func(){
 		"list":     list,
 		"setup":    setup,
 		"teardown": teardown,
+		"build": build,
 		"exit":     exit,
 	}
 

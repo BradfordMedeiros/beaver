@@ -46,9 +46,9 @@ func (plugin *Plugin) Teardown(id string) error {
 	err := command.Run()
 	return err
 }
-func (plugin *Plugin) Build() error {
+func (plugin *Plugin) Build(id string, options string) error {
 	fmt.Println("plugin build: ", plugin.PluginName)
-	payload := plugin.getBuildLocation()
+	payload := plugin.getBuildLocation() + " " + id + " '" + options +"'" 
 	command := exec.Command("/bin/sh", "-c", payload)
 	command.Dir = plugin.PluginFolderPath
 	err := command.Run()
