@@ -27,16 +27,26 @@ type Plugin struct {
 	PluginName string;
 	PluginFolderPath string;
 }
-func (plugin *Plugin) Setup() error{
+func (plugin *Plugin) Setup(id string) error{
 	fmt.Println("plugin setup: ", plugin.PluginName)
-	command := exec.Command("/bin/sh", "-c", plugin.GetSetupLocation()) 
+	payload := plugin.GetSetupLocation() + " " + id
+	command := exec.Command("/bin/sh", "-c", payload) 
 	command.Dir = plugin.PluginFolderPath
 	err := command.Run()
 	return err
 }
-func (plugin *Plugin) Teardown() error{
+func (plugin *Plugin) Teardown(id string) error{
 	fmt.Println("plugin teardown: ", plugin.PluginName)
-	command := exec.Command("/bin/sh", "-c", plugin.GetTeardownLocation()) 
+	payload := plugin.GetTeardownLocation() + " " + id
+	command := exec.Command("/bin/sh", "-c", payload) 
+	command.Dir = plugin.PluginFolderPath
+	err := command.Run()
+	return err
+}
+func (plugin *Plugin) Build() error{
+	fmt.Println("plugin build: ", plugin.PluginName)
+	payload := plugin.GetBuildLocation()
+	command := exec.Command("/bin/sh", "-c", payload) 
 	command.Dir = plugin.PluginFolderPath
 	err := command.Run()
 	return err

@@ -65,7 +65,7 @@ func main(){
 	fmt.Println(string(jsonPlugs))
 
 	for _, plug := range(plugs){
-		err:= plug.Setup()
+		err:= plug.Setup("test-id")
 		if err != nil {
 			fmt.Println("err: ", err)
 		}
@@ -73,8 +73,9 @@ func main(){
 	fmt.Println("sleep started")
 	time.Sleep(1000 * 10  * time.Millisecond)
 	fmt.Println("sleep ended")
+
 	for _, plug := range(plugs){
-		err:= plug.Teardown()
+		err:= plug.Teardown("test-id")
 		if err != nil {
 			fmt.Println("err: ", err)
 		}
