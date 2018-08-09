@@ -1,29 +1,27 @@
-
 package main
 
 import (
-	"fmt"
 	"encoding/json"
+	"fmt"
 	"os"
-	"time"
 )
 
 //import "./parseCommand"
-//import "./executeCommand"
 //import "./dependencyGraph"
 //import "./parseConfig"
 import "./options"
 import "./plugins"
+import "./ioLoop"
 
 type Command struct {
-	commandType string;
+	commandType string
 }
 
-
-func main(){
+func main() {
 	options, err := options.GetOptions()
 	if err != nil {
-		panic("got nil options")
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	jsonOptions, _ := json.Marshal(*options)
@@ -31,7 +29,6 @@ func main(){
 		fmt.Println("Options:")
 		fmt.Println(string(jsonOptions), "\n")
 	}
-
 
 	//testpackage.Test()
 	/*command := parseCommand.ParseCommand()
@@ -41,9 +38,6 @@ func main(){
 	var newCommand parseCommand.Command = parseCommand.Command { Test: "yello" }
 	fmt.Println(newCommand.Test)
 
-	executeCommand := executeCommand.GetExecuteCommand()
-
-	executeCommand()
 
 	graph := dependencyGraph.New()
 	fmt.Println(graph.Size())
@@ -54,30 +48,70 @@ func main(){
 
 	parseConfig.ParseConfig()
 	*/
-	plugs, err := plugins.GetPlugins(options.PluginDirectory)
-	if err !=nil {
-		fmt.Println("error reading plugins")
-		fmt.Println(err)
-		os.Exit(1)
+
+	list := func() {
+		plugs, err := plugins.GetPlugins(options.PluginDirectory)
+		if err != nil {
+			fmt.Println("error reading plugins")
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		jsonPlugs, _ := json.Marshal(plugs)
+		fmt.Println(string(jsonPlugs))
 	}
 
-	jsonPlugs, _ := json.Marshal(plugs)
-	fmt.Println(string(jsonPlugs))
-
-	for _, plug := range(plugs){
-		err:= plug.Setup("test-id")
+	setup := func() {
+		plugs, err := plugins.GetPlugins(options.PluginDirectory)
 		if err != nil {
-			fmt.Println("err: ", err)
+			fmt.Println("error reading plugins")
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		for _, plug := range(plugs){
+			err := plug.Setup("testid")
+			if err != nil {
+				fmt.Println("error: ", err)
+			}
 		}
 	}
-	fmt.Println("sleep started")
-	time.Sleep(1000 * 10  * time.Millisecond)
-	fmt.Println("sleep ended")
-
-	for _, plug := range(plugs){
-		err:= plug.Teardown("test-id")
+	teardown := func() {
+		plugs, err := plugins.GetPlugins(options.PluginDirectory)
 		if err != nil {
-			fmt.Println("err: ", err)
+			fmt.Println("error reading plugins")
+			fmt.Println(err)
+			os.Exit(1)
+		}
+
+		for _, plug := range(plugs){
+			err := plug.Teardown("testid")
+			if err != nil {
+				fmt.Println("error: ", err)
+			}
 		}
 	}
+	exit := func() {
+		os.Exit(0)
+	}
+
+	commandMap := map[string]func(){
+		"list":     list,
+		"setup":    setup,
+		"teardown": teardown,
+		"exit":     exit,
+	}
+
+	commandChannel := make(chan string)
+	go ioLoop.StartRepl(commandChannel)
+	for true {
+		command := <-commandChannel
+		commandToExecute := commandMap[command]
+		if commandToExecute == nil {
+			fmt.Println("invalid command")
+		} else {
+			commandToExecute()
+		}
+	}
+
 }

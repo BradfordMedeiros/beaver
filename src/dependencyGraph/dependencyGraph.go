@@ -1,4 +1,3 @@
-
 /*
 	tree structure to  represent dependency graph within the program
 
@@ -13,62 +12,60 @@
 	i think
 */
 
-package dependencyGraph;
+package dependencyGraph
 
 import "fmt"
 
 type Node struct {
-	leftNode *Node;
-	rightNode *Node;
-	NodeName string;
-	resolved bool;
+	leftNode  *Node
+	rightNode *Node
+	NodeName  string
+	resolved  bool
 }
 
 type RootNode struct {
-	Node *Node;
+	Node *Node
 
 	// maybe look up better way to generate ids
 	// but this works well with no external deps
-	getNextNodeId func() int;	
+	getNextNodeId func() int
 }
 
-
-func New() *RootNode{
-	node := Node { NodeName: "hello", resolved: false }
+func New() *RootNode {
+	node := Node{NodeName: "hello", resolved: false}
 
 	currId := -1
-	getNextNodeId := func() int{
+	getNextNodeId := func() int {
 		currId = currId + 1
 		return currId
 	}
 
-	fmt.Print("wow : ",  currId, "|")
-	someNode := RootNode { Node: &node, getNextNodeId: getNextNodeId }
+	fmt.Print("wow : ", currId, "|")
+	someNode := RootNode{Node: &node, getNextNodeId: getNextNodeId}
 
 	return &someNode
 }
 
-func (graph RootNode) AddDependency(node string, node2 string){
+func (graph RootNode) AddDependency(node string, node2 string) {
 
 }
 
-func (graph RootNode) HasDependency(node string, node2 string){
+func (graph RootNode) HasDependency(node string, node2 string) {
 
 }
 
-func (graph RootNode) RemoveDependency(node string, node2 string){
+func (graph RootNode) RemoveDependency(node string, node2 string) {
 
 }
 
-func (graph RootNode) MarkAsResolved(node string){
+func (graph RootNode) MarkAsResolved(node string) {
 
 }
 
-func (graph RootNode) MarkAsUnresolved(node string){
+func (graph RootNode) MarkAsUnresolved(node string) {
 
 }
 
-func (graph RootNode) Size() int{
+func (graph RootNode) Size() int {
 	return 10
 }
-

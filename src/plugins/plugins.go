@@ -14,50 +14,53 @@
 
 */
 package plugins
-import "io/ioutil"	
-import "path/filepath"	
+
+import "io/ioutil"
+import "path/filepath"
 import "errors"
-import "fmt"	
-import "os"	
+import "fmt"
+import "os"
 import "os/exec"
 
 // These simply load the set up available plugins, and verify z
 
 type Plugin struct {
-	PluginName string;
-	PluginFolderPath string;
+	PluginName       string
+	PluginFolderPath string
 }
-func (plugin *Plugin) Setup(id string) error{
+
+// @todo would be nice to log stderr, stdout somewhere
+func (plugin *Plugin) Setup(id string) error {
 	fmt.Println("plugin setup: ", plugin.PluginName)
-	payload := plugin.GetSetupLocation() + " " + id
-	command := exec.Command("/bin/sh", "-c", payload) 
+	payload := plugin.getSetupLocation() + " " + id
+	command := exec.Command("/bin/sh", "-c", payload)
 	command.Dir = plugin.PluginFolderPath
 	err := command.Run()
 	return err
 }
-func (plugin *Plugin) Teardown(id string) error{
+func (plugin *Plugin) Teardown(id string) error {
 	fmt.Println("plugin teardown: ", plugin.PluginName)
-	payload := plugin.GetTeardownLocation() + " " + id
-	command := exec.Command("/bin/sh", "-c", payload) 
+	payload := plugin.getTeardownLocation() + " " + id
+	command := exec.Command("/bin/sh", "-c", payload)
 	command.Dir = plugin.PluginFolderPath
 	err := command.Run()
 	return err
 }
-func (plugin *Plugin) Build() error{
+func (plugin *Plugin) Build() error {
 	fmt.Println("plugin build: ", plugin.PluginName)
-	payload := plugin.GetBuildLocation()
-	command := exec.Command("/bin/sh", "-c", payload) 
+	payload := plugin.getBuildLocation()
+	command := exec.Command("/bin/sh", "-c", payload)
 	command.Dir = plugin.PluginFolderPath
 	err := command.Run()
 	return err
 }
 
 // valid plugin needs setup.sh, teardown.sh, and build.sh
-func (plugin *Plugin) IsValidResource() bool{
-	setupLocation := plugin.GetSetupLocation()
-	teardownLocation := plugin.GetTeardownLocation()
-	buildLocation := plugin.GetBuildLocation()
-	
+func (plugin *Plugin) isValidResource() bool {
+	setupLocation := plugin.getSetupLocation()
+	teardownLocation := plugin.getTeardownLocation()
+	buildLocation := plugin.getBuildLocation()
+
 	_, errSetup := os.Stat(setupLocation)
 	setupExists := errSetup == nil
 
@@ -67,41 +70,40 @@ func (plugin *Plugin) IsValidResource() bool{
 	_, errBuild := os.Stat(buildLocation)
 	buildExists := errBuild == nil
 
-	return setupExists  && teardownExists && buildExists
+	return setupExists && teardownExists && buildExists
 }
-func(plugin *Plugin) GetSetupLocation() string{
+func (plugin *Plugin) getSetupLocation() string {
 	return filepath.Join(plugin.PluginFolderPath, "setup.sh")
 }
-func(plugin *Plugin) GetTeardownLocation() string{
+func (plugin *Plugin) getTeardownLocation() string {
 	return filepath.Join(plugin.PluginFolderPath, "teardown.sh")
 }
-func(plugin *Plugin) GetBuildLocation() string{
+func (plugin *Plugin) getBuildLocation() string {
 	return filepath.Join(plugin.PluginFolderPath, "build.sh")
 }
 
 func GetPlugins(pluginFolderPath string) ([]Plugin, error) {
 	files, err := ioutil.ReadDir(pluginFolderPath)
 
-	plugins :=  []Plugin { }
+	plugins := []Plugin{}
 	for _, file := range files {
 		if file.IsDir() {
 			fileName := file.Name()
-			fullPath :=  filepath.Join(pluginFolderPath, fileName)
+			fullPath := filepath.Join(pluginFolderPath, fileName)
 
-			loadedPlugin := Plugin { PluginName: fileName, PluginFolderPath: fullPath }
-			if !loadedPlugin.IsValidResource(){
-				return nil, errors.New("Invalid resources for plugin: "  + loadedPlugin.PluginName)
+			loadedPlugin := Plugin{PluginName: fileName, PluginFolderPath: fullPath}
+			if !loadedPlugin.isValidResource() {
+				return nil, errors.New("Invalid resources for plugin: " + loadedPlugin.PluginName)
 			}
 			plugins = append(plugins, loadedPlugin)
-		}else{
+		} else {
 			return nil, errors.New("file found in plugin folder that is not a valid plugin")
 		}
 	}
 
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 
 	return plugins, nil
 }
-

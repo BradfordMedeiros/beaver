@@ -1,6 +1,6 @@
-#/usr/bin/env sh
+#/usr/bin/env bash
 
 ./hooker &
 
-echo $! > "$1_PID"
+echo $! > "$1.PID"
 

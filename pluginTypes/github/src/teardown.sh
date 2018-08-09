@@ -1,14 +1,8 @@
-#/usr/bin/env sh
+#/usr/bin/env bash
 
 FILENAMEBASE=$1
-
-echo "base is $FILENAMEBASE"
-FILENAME=${FILENAMEBASE}_PID
-
-echo "FILE NAME IS $FILENAME"
-PID=$(<${FILENAME})
-echo "PID IS $PID"
-
-kill -9 $PID
+FILENAME="$PWD/$FILENAMEBASE.PID"
+HOOKER_PID=$(cat $FILENAME)
+kill -9 $HOOKER_PID
 rm $FILENAME
 

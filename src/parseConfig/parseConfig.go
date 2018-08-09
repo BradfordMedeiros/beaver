@@ -4,8 +4,9 @@
 */
 
 package parseConfig
+
 import "fmt"
 
-func ParseConfig(){
+func ParseConfig() {
 	fmt.Print("parse config placeholder")
 }
