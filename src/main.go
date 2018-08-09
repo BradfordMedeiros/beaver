@@ -69,7 +69,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		for _, plug := range(plugs){
+		for _, plug := range plugs {
 			err := plug.Setup("testid")
 			if err != nil {
 				fmt.Println("error: ", err)
@@ -84,7 +84,7 @@ func main() {
 			os.Exit(1)
 		}
 
-		for _, plug := range(plugs){
+		for _, plug := range plugs {
 			err := plug.Teardown("testid")
 			if err != nil {
 				fmt.Println("error: ", err)
@@ -103,14 +103,16 @@ func main() {
 	}
 
 	commandChannel := make(chan string)
-	go ioLoop.StartRepl(commandChannel)
-	for true {
-		command := <-commandChannel
-		commandToExecute := commandMap[command]
-		if commandToExecute == nil {
-			fmt.Println("invalid command")
-		} else {
-			commandToExecute()
+	if options.LoopType == "repl" {
+		go ioLoop.StartRepl(commandChannel)
+		for true {
+			command := <-commandChannel
+			commandToExecute := commandMap[command]
+			if commandToExecute == nil {
+				fmt.Println("invalid command")
+			} else {
+				commandToExecute()
+			}
 		}
 	}
 
