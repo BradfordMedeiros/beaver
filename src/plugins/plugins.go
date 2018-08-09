@@ -17,19 +17,56 @@ package plugins
 import "io/ioutil"	
 import "path/filepath"	
 import "errors"
+import "fmt"	
+import "os"	
+import "os/exec"
 
 // These simply load the set up available plugins, and verify z
-
-func LoadPlugins(){
-
-}
-func IsValidResource(){
-
-}
 
 type Plugin struct {
 	PluginName string;
 	PluginFolderPath string;
+}
+func (plugin *Plugin) Setup() error{
+	fmt.Println("plugin setup: ", plugin.PluginName)
+	command := exec.Command("/bin/sh", "-c", plugin.GetSetupLocation()) 
+	command.Dir = plugin.PluginFolderPath
+	err := command.Run()
+	return err
+}
+func (plugin *Plugin) Teardown() error{
+	fmt.Println("plugin teardown: ", plugin.PluginName)
+	command := exec.Command("/bin/sh", "-c", plugin.GetTeardownLocation()) 
+	command.Dir = plugin.PluginFolderPath
+	err := command.Run()
+	return err
+}
+
+// valid plugin needs setup.sh, teardown.sh, and build.sh
+func (plugin *Plugin) IsValidResource() bool{
+	setupLocation := plugin.GetSetupLocation()
+	teardownLocation := plugin.GetTeardownLocation()
+	buildLocation := plugin.GetBuildLocation()
+	
+	_, errSetup := os.Stat(setupLocation)
+	setupExists := errSetup == nil
+
+	_, errTeardown := os.Stat(teardownLocation)
+	teardownExists := errTeardown == nil
+
+	_, errBuild := os.Stat(buildLocation)
+	buildExists := errBuild == nil
+
+	return setupExists  && teardownExists && buildExists
+}
+func(plugin *Plugin) GetSetupLocation() string{
+	return filepath.Join(plugin.PluginFolderPath, "setup.sh")
+}
+func(plugin *Plugin) GetTeardownLocation() string{
+	return filepath.Join(plugin.PluginFolderPath, "teardown.sh")
+}
+func(plugin *Plugin) GetBuildLocation() string{
+	return filepath.Join(plugin.PluginFolderPath, "build.sh")
 }
 
 func GetPlugins(pluginFolderPath string) ([]Plugin, error) {
@@ -40,7 +77,12 @@ func GetPlugins(pluginFolderPath string) ([]Plugin, error) {
 		if file.IsDir() {
 			fileName := file.Name()
 			fullPath :=  filepath.Join(pluginFolderPath, fileName)
-			plugins = append(plugins, Plugin { PluginName: fileName, PluginFolderPath: fullPath })
+
+			loadedPlugin := Plugin { PluginName: fileName, PluginFolderPath: fullPath }
+			if !loadedPlugin.IsValidResource(){
+				return nil, errors.New("Invalid resources for plugin: "  + loadedPlugin.PluginName)
+			}
+			plugins = append(plugins, loadedPlugin)
 		}else{
 			return nil, errors.New("file found in plugin folder that is not a valid plugin")
 		}
@@ -53,18 +95,3 @@ func GetPlugins(pluginFolderPath string) ([]Plugin, error) {
 	return plugins, nil
 }
 
-
-
-// These are applied per type during runtime
-func SetupPlugin(){
-
-}
-func SetupPlugins(){
-
-}
-func TeardownPlugin(){
-
-}
-func TeardownPlugins(){
-
-}

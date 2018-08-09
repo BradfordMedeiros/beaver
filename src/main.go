@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"encoding/json"
 	"os"
+	"time"
 )
 
 //import "./parseCommand"
@@ -62,5 +63,20 @@ func main(){
 
 	jsonPlugs, _ := json.Marshal(plugs)
 	fmt.Println(string(jsonPlugs))
-	
+
+	for _, plug := range(plugs){
+		err:= plug.Setup()
+		if err != nil {
+			fmt.Println("err: ", err)
+		}
+	}
+	fmt.Println("sleep started")
+	time.Sleep(1000 * 10  * time.Millisecond)
+	fmt.Println("sleep ended")
+	for _, plug := range(plugs){
+		err:= plug.Teardown()
+		if err != nil {
+			fmt.Println("err: ", err)
+		}
+	}
 }
