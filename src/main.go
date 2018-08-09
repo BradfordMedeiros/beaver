@@ -104,7 +104,7 @@ func main() {
 		}
 
 		for _, plug := range plugs {
-			err := plug.Build("testid", "{\"height\" : 2}")
+			err := plug.Build("testid", "https://github.com/BradfordMedeiros/stork.git stork")
 			if err != nil {
 				fmt.Println("error: ", err)
 			}
