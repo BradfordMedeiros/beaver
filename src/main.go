@@ -4,6 +4,7 @@ package main
 import (
 	"fmt"
 	"encoding/json"
+	"os"
 )
 
 //import "./parseCommand"
@@ -52,10 +53,14 @@ func main(){
 
 	parseConfig.ParseConfig()
 	*/
-	plugs := plugins.GetPlugins(options.PluginDirectory)
-
-	if options.Verbose {
-		fmt.Println("Number of plugins: \n", len(plugs))
+	plugs, err := plugins.GetPlugins(options.PluginDirectory)
+	if err !=nil {
+		fmt.Println("error reading plugins")
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
+	jsonPlugs, _ := json.Marshal(plugs)
+	fmt.Println(string(jsonPlugs))
+	
 }

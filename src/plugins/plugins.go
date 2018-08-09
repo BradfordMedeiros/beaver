@@ -14,9 +14,12 @@
 
 */
 package plugins
+import "io/ioutil"	
+import "path/filepath"	
+import "errors"
 
 // These simply load the set up available plugins, and verify z
-	
+
 func LoadPlugins(){
 
 }
@@ -25,13 +28,29 @@ func IsValidResource(){
 }
 
 type Plugin struct {
-	pluginName string;
-	pluginFolderPath string;
+	PluginName string;
+	PluginFolderPath string;
 }
 
-func GetPlugins(pluginFolderPath string) []Plugin {
-	plugins := []Plugin{ }
-	return plugins
+func GetPlugins(pluginFolderPath string) ([]Plugin, error) {
+	files, err := ioutil.ReadDir(pluginFolderPath)
+
+	plugins :=  []Plugin { }
+	for _, file := range files {
+		if file.IsDir() {
+			fileName := file.Name()
+			fullPath :=  filepath.Join(pluginFolderPath, fileName)
+			plugins = append(plugins, Plugin { PluginName: fileName, PluginFolderPath: fullPath })
+		}else{
+			return nil, errors.New("file found in plugin folder that is not a valid plugin")
+		}
+	}
+
+	if err != nil{
+		return nil, err
+	}
+
+	return plugins, nil
 }
 
 
