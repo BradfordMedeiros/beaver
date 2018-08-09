@@ -1,4 +1,6 @@
 #/usr/bin/env sh
 
 ./hooker &
-echo $! > PID
+
+echo $! > "$1_PID"
+

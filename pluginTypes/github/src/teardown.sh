@@ -1,6 +1,14 @@
 #/usr/bin/env sh
 
-PID=$(<PID)
-kill $PID
+FILENAMEBASE=$1
 
-echo "want to kill:  $PID"
+echo "base is $FILENAMEBASE"
+FILENAME=${FILENAMEBASE}_PID
+
+echo "FILE NAME IS $FILENAME"
+PID=$(<${FILENAME})
+echo "PID IS $PID"
+
+kill -9 $PID
+rm $FILENAME
+
