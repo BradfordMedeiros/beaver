@@ -117,6 +117,8 @@ func main() {
 		}else{
 			fmt.Println("name:  ", res.ResourceName)
 			fmt.Println("dependencies: ", len(res.Dependencies))
+			fmt.Println("type:  ", res.PluginType)
+			fmt.Println("options: ", len(res.Options))
 		}
 	}
 

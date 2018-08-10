@@ -11,10 +11,16 @@ import (
 )
 import "gopkg.in/yaml.v2"	
 
+type Option struct {
+	option string `yaml:"option"`;
+	value string `yaml:"value"`;
+}
 
 type Config struct {
-	ResourceName string `yaml:"ResourceName"`
-	Dependencies []Config `yaml:"Dependencies"`
+	ResourceName string `yaml:"name"`
+	Dependencies []Config `yaml:"depends-on"`
+	PluginType string `yaml:"plugin-type"`
+	Options []Option `yaml:"options"`
 }
 
 func parseYamlString(yamlConfig []byte) (Config, error) {
