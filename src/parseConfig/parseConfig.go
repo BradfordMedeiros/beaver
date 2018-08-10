@@ -5,25 +5,41 @@
 
 package parseConfig
 
-import "fmt"
+import (
+	"fmt"
+	"io/ioutil"
+)
 import "gopkg.in/yaml.v2"	
 
 
 type Config struct {
 	ResourceName string `yaml:"ResourceName"`
+	Dependencies []Config `yaml:"Dependencies"`
 }
 
-func ParseYamlConfig(yamlConfig string) {
-
-}
-
-func ParseYamlString(yamlConfig string) (error, Config) {
+func parseYamlString(yamlConfig []byte) (Config, error) {
 	fmt.Print("parse config placeholder")
 	var resource Config
-	err := yaml.Unmarshal([]byte(yamlConfig), &resource)
+	err := yaml.Unmarshal(yamlConfig, &resource)
 	if err != nil {
-		return err, Config {}
+		return Config {}, err
 	}
 
-	return nil, resource
+	return resource, nil
 }
+
+func ParseYamlConfig(yamlConfig string) (Config, error) {
+	fileContent, err := ioutil.ReadFile(yamlConfig)
+	if err != nil {
+		return Config{}, err
+	}
+	
+	parsedConfig, errParsing := parseYamlString(fileContent)
+	if errParsing != nil {
+		return Config{}, err
+	}
+
+	return parsedConfig, nil
+}
+
+

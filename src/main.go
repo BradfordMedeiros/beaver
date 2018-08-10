@@ -110,15 +110,14 @@ func main() {
 			}
 		}
 	}
-
 	parse := func(){
-		err,  config := parseConfig.ParseYamlString("ResourceName: \"apple\"")
+		res, err := parseConfig.ParseYamlConfig("./test.yaml")
 		if err != nil {
 			fmt.Println("error: ", err)
 		}else{
-			fmt.Println("resource: " + config.ResourceName)
+			fmt.Println("name:  ", res.ResourceName)
+			fmt.Println("dependencies: ", len(res.Dependencies))
 		}
-
 	}
 
 	commandMap := map[string]func(){
