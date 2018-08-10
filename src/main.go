@@ -8,7 +8,7 @@ import (
 
 //import "./parseCommand"
 //import "./dependencyGraph"
-//import "./parseConfig"
+import "./parseConfig"
 import "./options"
 import "./plugins"
 import "./ioLoop"
@@ -111,12 +111,23 @@ func main() {
 		}
 	}
 
+	parse := func(){
+		err,  config := parseConfig.ParseYamlString("ResourceName: \"apple\"")
+		if err != nil {
+			fmt.Println("error: ", err)
+		}else{
+			fmt.Println("resource: " + config.ResourceName)
+		}
+
+	}
+
 	commandMap := map[string]func(){
 		"list":     list,
 		"setup":    setup,
 		"teardown": teardown,
 		"build": build,
-		"exit":     exit,
+		"exit": exit,
+		"parse": parse,
 	}
 
 	commandChannel := make(chan string)
