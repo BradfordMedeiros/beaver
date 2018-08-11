@@ -60,6 +60,8 @@ func (plugin *Plugin) isValidResource() bool {
 	setupLocation := plugin.getSetupLocation()
 	teardownLocation := plugin.getTeardownLocation()
 	buildLocation := plugin.getBuildLocation()
+	addResLocation := plugin.getAddResourceLocation()
+	removeResLocation := plugin.getRemoveResourceLocation()
 
 	_, errSetup := os.Stat(setupLocation)
 	setupExists := errSetup == nil
@@ -70,7 +72,13 @@ func (plugin *Plugin) isValidResource() bool {
 	_, errBuild := os.Stat(buildLocation)
 	buildExists := errBuild == nil
 
-	return setupExists && teardownExists && buildExists
+	_, errAddRes := os.Stat(addResLocation)
+	addResExists := errAddRes == nil
+
+	_, errRemoveRes := os.Stat(removeResLocation)
+	removeResExists := errRemoveRes == nil
+
+	return setupExists && teardownExists && buildExists && addResExists &&  removeResExists
 }
 func (plugin *Plugin) getSetupLocation() string {
 	return filepath.Join(plugin.PluginFolderPath, "setup.sh")
@@ -80,6 +88,12 @@ func (plugin *Plugin) getTeardownLocation() string {
 }
 func (plugin *Plugin) getBuildLocation() string {
 	return filepath.Join(plugin.PluginFolderPath, "build.sh")
+}
+func (plugin *Plugin) getAddResourceLocation() string {
+	return filepath.Join(plugin.PluginFolderPath, "add-resource.sh")
+}
+func (plugin *Plugin) getRemoveResourceLocation() string{
+	return filepath.Join(plugin.PluginFolderPath, "remove-resource.sh")
 }
 
 func GetPlugins(pluginFolderPath string) ([]Plugin, error) {
