@@ -54,6 +54,22 @@ func (plugin *Plugin) Build(id string, options string) error {
 	err := command.Run()
 	return err
 }
+func (plugin *Plugin) AddResource() error {
+	fmt.Println("plugin add resource: ", plugin.PluginName)
+	payload := plugin.getAddResourceLocation() 
+	command := exec.Command("/bin/sh", "-c", payload)
+	command.Dir = plugin.PluginFolderPath
+	err := command.Run()
+	return err
+}
+func (plugin *Plugin) RemoveResource() error {
+	fmt.Println("plugin remove resource: ", plugin.PluginName)
+	payload := plugin.getRemoveResourceLocation()
+	command := exec.Command("/bin/sh", "-c", payload)
+	command.Dir = plugin.PluginFolderPath
+	err := command.Run()
+	return err
+}
 
 // valid plugin needs setup.sh, teardown.sh, and build.sh
 func (plugin *Plugin) isValidResource() bool {
