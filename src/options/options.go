@@ -13,7 +13,7 @@ type Options struct {
 func GetOptions() (*Options, error) {
 	verbose := flag.Bool("v", false, "enable verbose output")
 	loopType := flag.String("l", "none", "ability to add command loop <none, repl>")
-	pluginLocation := flag.String("p", "./plugins", "location of plugin folder")
+	pluginLocation := flag.String("p", "./res/plugins", "location of plugin folder")
 
 	flag.Parse()
 
