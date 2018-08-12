@@ -29,6 +29,11 @@ type Plugin struct {
 	PluginFolderPath string
 }
 
+type PluginOption struct {
+	Option string;
+	Value string;
+}
+
 // @todo would be nice to log stderr, stdout somewhere
 func (plugin *Plugin) Setup(id string) error {
 	fmt.Println("plugin setup: ", plugin.PluginName)
@@ -54,19 +59,35 @@ func (plugin *Plugin) Build(id string, options string) error {
 	err := command.Run()
 	return err
 }
-func (plugin *Plugin) AddResource() error {
+func pluginOptionsToString(options []PluginOption) string {
+	var optionsString string
+	fmt.Println("optitons length is: ", len(options))
+	for _, option := range(options){
+		optionName := option.Option
+		optionValue := option.Value
+		optionsString = optionsString + optionName + " " + optionValue + "\n"
+	}
+	return optionsString
+}
+func (plugin *Plugin) AddResource(id string, options []PluginOption) error {
 	fmt.Println("plugin add resource: ", plugin.PluginName)
 	payload := plugin.getAddResourceLocation() 
 	command := exec.Command("/bin/sh", "-c", payload)
 	command.Dir = plugin.PluginFolderPath
+	command.Env = os.Environ()
+	command.Env = append(command.Env, "ID=testid")
+	command.Env = append(command.Env, "OPTIONS=" + pluginOptionsToString(options))
 	err := command.Run()
 	return err
 }
-func (plugin *Plugin) RemoveResource() error {
+func (plugin *Plugin) RemoveResource(id string, options []PluginOption) error {
 	fmt.Println("plugin remove resource: ", plugin.PluginName)
 	payload := plugin.getRemoveResourceLocation()
 	command := exec.Command("/bin/sh", "-c", payload)
 	command.Dir = plugin.PluginFolderPath
+	command.Env = os.Environ()
+	command.Env = append(command.Env, "ID=testid")
+	command.Env = append(command.Env, "OPTIONS=" + pluginOptionsToString(options))
 	err := command.Run()
 	return err
 }

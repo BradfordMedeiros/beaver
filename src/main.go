@@ -121,6 +121,66 @@ func main() {
 			fmt.Println("options: ", len(res.Options))
 		}
 	}
+	add := func(){
+		config, err := parseConfig.ParseYamlConfig("./test.yaml")
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println(config.ResourceName)
+		plugs, err := plugins.GetPlugins(options.PluginDirectory)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		plugin := plugs[0]
+		fmt.Println(plugin.PluginName)
+		var options []plugins.PluginOption
+		fmt.Println("config options length is: ", len(config.Options))
+		for _, option := range(config.Options){
+			options = append(options, plugins.PluginOption { 
+				Option: option.Option, 
+				Value: option.Value,
+			} )
+		}
+		err1 := plugin.AddResource("testid", options)
+		if err1 != nil {
+			fmt.Println(err1)
+			return
+		}
+		fmt.Println("success")
+	}
+	remove := func(){
+		config, err := parseConfig.ParseYamlConfig("./test.yaml")
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println(config.ResourceName)
+		plugs, err := plugins.GetPlugins(options.PluginDirectory)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		plugin := plugs[0]
+		fmt.Println(plugin.PluginName)
+		var options []plugins.PluginOption
+		fmt.Println("config options length is: ", len(config.Options))
+		for _, option := range(config.Options){
+			options = append(options, plugins.PluginOption { 
+				Option: option.Option, 
+				Value: option.Value,
+			} )
+		}
+		err1 := plugin.RemoveResource("testid", options)
+		if err1 != nil {
+			fmt.Println(err1)
+			return
+		}
+		fmt.Println("success")
+	}
 
 	commandMap := map[string]func(){
 		"list":     list,
@@ -129,6 +189,8 @@ func main() {
 		"build": build,
 		"exit": exit,
 		"parse": parse,
+		"add": add,
+		"remove": remove,
 	}
 
 	commandChannel := make(chan string)

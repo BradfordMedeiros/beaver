@@ -3,6 +3,8 @@
 	these configs represent dependencies
 */
 
+// @todo should add extra parse logic here
+// for example, make sure certain fields not null, assert no spaces in values, etc
 package parseConfig
 
 import (
@@ -12,8 +14,8 @@ import (
 import "gopkg.in/yaml.v2"	
 
 type Option struct {
-	option string `yaml:"option"`;
-	value string `yaml:"value"`;
+	Option string `yaml:"option"`;
+	Value string `yaml:"value"`;
 }
 
 type Config struct {
