@@ -75,7 +75,7 @@ func (plugin *Plugin) AddResource(id string, options []PluginOption) error {
 	command := exec.Command("/bin/sh", "-c", payload)
 	command.Dir = plugin.PluginFolderPath
 	command.Env = os.Environ()
-	command.Env = append(command.Env, "ID=testid")
+	command.Env = append(command.Env, "ID="+id)	// should check about properly escaping this?
 	command.Env = append(command.Env, "OPTIONS=" + pluginOptionsToString(options))
 	err := command.Run()
 	return err
@@ -86,7 +86,7 @@ func (plugin *Plugin) RemoveResource(id string, options []PluginOption) error {
 	command := exec.Command("/bin/sh", "-c", payload)
 	command.Dir = plugin.PluginFolderPath
 	command.Env = os.Environ()
-	command.Env = append(command.Env, "ID=testid")
+	command.Env = append(command.Env, "ID="+id)
 	command.Env = append(command.Env, "OPTIONS=" + pluginOptionsToString(options))
 	err := command.Run()
 	return err
