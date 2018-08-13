@@ -1,4 +1,4 @@
-#/usr/bin/env bash
+#!/usr/bin/env bash
 
 FILENAMEBASE=$1
 FILENAME="$PWD/$FILENAMEBASE.PID"

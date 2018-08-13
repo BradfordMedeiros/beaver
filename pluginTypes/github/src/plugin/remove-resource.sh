@@ -1,4 +1,3 @@
+#!/usr/bin/env bash
 
-echo "$ID" >> remove-resource.log
-echo "$OPTIONS" >> remove-resource.log
-
+cat resources | awk -v id="$ID" '{ if ($0 != id){ print($0) }}' > resources

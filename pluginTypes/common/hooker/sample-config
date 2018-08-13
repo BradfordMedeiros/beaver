@@ -1,0 +1,3 @@
+/ echo "wow" >> out
+/another echo "another" >> out
+/notify notify-send sup
