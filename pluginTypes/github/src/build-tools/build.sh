@@ -4,7 +4,7 @@
 # meaning options: "https://github.com/etc"
 
 echo "build called "  >> log
-
+ 
 GITHUB_URL=$(echo $2 | awk '{ print $1 }')
 CLEANUP=$(echo $2 | awk '{ print $2 }')
 

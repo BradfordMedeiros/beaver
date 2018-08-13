@@ -1,8 +1,0 @@
-#/usr/bin/env bash
-
-FILENAMEBASE=$1
-FILENAME="$PWD/$FILENAMEBASE.PID"
-HOOKER_PID=$(cat $FILENAME)
-kill -9 $HOOKER_PID
-rm $FILENAME
-
