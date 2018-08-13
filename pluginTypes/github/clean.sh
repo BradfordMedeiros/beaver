@@ -1,3 +1,3 @@
 #/usr/bin/env sh
 
-rm  ./src/hooker
+rm -r ./build
