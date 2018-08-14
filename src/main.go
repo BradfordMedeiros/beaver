@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 )
 
 //import "./parseCommand"
@@ -49,7 +50,7 @@ func main() {
 	parseConfig.ParseConfig()
 	*/
 
-	list := func() {
+	list := func(val string) {
 		plugs, err := plugins.GetPlugins(options.PluginDirectory)
 		if err != nil {
 			fmt.Println("error reading plugins")
@@ -61,7 +62,7 @@ func main() {
 		fmt.Println(string(jsonPlugs))
 	}
 
-	setup := func() {
+	setup := func(val string) {
 		plugs, err := plugins.GetPlugins(options.PluginDirectory)
 		if err != nil {
 			fmt.Println("error reading plugins")
@@ -76,7 +77,7 @@ func main() {
 			}
 		}
 	}
-	teardown := func() {
+	teardown := func(val string) {
 		plugs, err := plugins.GetPlugins(options.PluginDirectory)
 		if err != nil {
 			fmt.Println("error reading plugins")
@@ -91,11 +92,11 @@ func main() {
 			}
 		}
 	}
-	exit := func() {
+	exit := func(val string) {
 		os.Exit(0)
 	}
 
-	build := func(){
+	build := func(val string){
 		plugs, err := plugins.GetPlugins(options.PluginDirectory)
 		if err != nil {
 			fmt.Println("error reading plugins")
@@ -110,7 +111,7 @@ func main() {
 			}
 		}
 	}
-	parse := func(){
+	parse := func(val string){
 		res, err := parseConfig.ParseYamlConfig("./test.yaml")
 		if err != nil {
 			fmt.Println("error: ", err)
@@ -121,7 +122,7 @@ func main() {
 			fmt.Println("options: ", len(res.Options))
 		}
 	}
-	add := func(){
+	add := func(id string){
 		config, err := parseConfig.ParseYamlConfig("./test.yaml")
 		if err != nil {
 			fmt.Println(err)
@@ -144,14 +145,14 @@ func main() {
 				Value: option.Value,
 			} )
 		}
-		err1 := plugin.AddResource("testid", options)
+		err1 := plugin.AddResource(id, options)
 		if err1 != nil {
 			fmt.Println(err1)
 			return
 		}
 		fmt.Println("success")
 	}
-	remove := func(){
+	remove := func(id string){
 		config, err := parseConfig.ParseYamlConfig("./test.yaml")
 		if err != nil {
 			fmt.Println(err)
@@ -174,7 +175,8 @@ func main() {
 				Value: option.Value,
 			} )
 		}
-		err1 := plugin.RemoveResource("testid", options)
+		fmt.Println("removed id: ", id)
+		err1 := plugin.RemoveResource(id, options)
 		if err1 != nil {
 			fmt.Println(err1)
 			return
@@ -182,7 +184,7 @@ func main() {
 		fmt.Println("success")
 	}
 
-	commandMap := map[string]func(){
+	commandMap := map[string]func(string){
 		"list":     list,
 		"setup":    setup,
 		"teardown": teardown,
@@ -197,12 +199,22 @@ func main() {
 	if options.LoopType == "repl" {
 		go ioLoop.StartRepl(commandChannel)
 		for true {
-			command := <-commandChannel
+			commandString := <-commandChannel
+			commandArray := strings.SplitN(commandString, " ", 2)
+			command := commandArray[0]
+			
+			option := ""
+			if len(commandArray) > 1 {
+				option = commandArray[1]
+			}
+
+
+			fmt.Println("option is: ", option)
 			commandToExecute := commandMap[command]
 			if commandToExecute == nil {
 				fmt.Println("invalid command")
 			} else {
-				commandToExecute()
+				commandToExecute(option)
 			}
 		}
 	}
