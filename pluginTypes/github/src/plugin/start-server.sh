@@ -1,4 +1,4 @@
-#i!/usr/bin/env bash
+#!/usr/bin/env bash
 
 ./stop-server.sh
 ./generate-server.sh > ./hooker-config
