@@ -56,6 +56,7 @@ func (plugin *Plugin) Build(id string, options string) error {
 	payload := plugin.getBuildLocation() + " " + id + " '" + options +"'" 
 	command := exec.Command("/bin/sh", "-c", payload)
 	command.Dir = plugin.PluginFolderPath
+	// should probably add ENV of the build folder here so you can do  cp -r somefile $DESTINATION
 	err := command.Run()
 	return err
 }

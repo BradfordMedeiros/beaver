@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 )
 
-//import "./parseCommand"
 //import "./dependencyGraph"
 import "./parseConfig"
 import "./options"
@@ -32,15 +31,7 @@ func main() {
 		fmt.Println(string(jsonOptions), "\n")
 	}
 
-	//testpackage.Test()
-	/*command := parseCommand.ParseCommand()
-	fmt.Println("command  type is: " , command.Test)
-	jsonObj, _ := json.Marshal(command)
-	fmt.Println(string(jsonObj))
-	var newCommand parseCommand.Command = parseCommand.Command { Test: "yello" }
-	fmt.Println(newCommand.Test)
-
-
+/*
 	graph := dependencyGraph.New()
 	fmt.Println(graph.Size())
 
@@ -148,7 +139,7 @@ func main() {
 		}
 
 		abspath, err := filepath.Abs("./commonScripts/alert-ready.sh")
-		err1 := plugin.AddResource(id, options, abspath )
+		err1 := plugin.AddResource(id, options, abspath + " " + id )
 		if err1 != nil {
 			fmt.Println(err1)
 			return
