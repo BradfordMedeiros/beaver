@@ -25,8 +25,8 @@ import "os/exec"
 // These simply load the set up available plugins, and verify z
 
 type Plugin struct {
-	PluginName       string
-	PluginFolderPath string
+	PluginName       string;
+	PluginFolderPath string;
 }
 
 type PluginOption struct {
@@ -69,7 +69,7 @@ func pluginOptionsToString(options []PluginOption) string {
 	}
 	return optionsString
 }
-func (plugin *Plugin) AddResource(id string, options []PluginOption) error {
+func (plugin *Plugin) AddResource(id string, options []PluginOption, alertScriptLocation string) error {
 	fmt.Println("plugin add resource: ", plugin.PluginName)
 	payload := plugin.getAddResourceLocation() 
 	command := exec.Command("/bin/sh", "-c", payload)
@@ -77,6 +77,7 @@ func (plugin *Plugin) AddResource(id string, options []PluginOption) error {
 	command.Env = os.Environ()
 	command.Env = append(command.Env, "ID="+id)	// should check about properly escaping this?
 	command.Env = append(command.Env, "OPTIONS=" + pluginOptionsToString(options))
+	command.Env = append(command.Env, "ALERT_READY=" + alertScriptLocation)
 	err := command.Run()
 	return err
 }
@@ -132,7 +133,6 @@ func (plugin *Plugin) getAddResourceLocation() string {
 func (plugin *Plugin) getRemoveResourceLocation() string{
 	return filepath.Join(plugin.PluginFolderPath, "remove-resource.sh")
 }
-
 func GetPlugins(pluginFolderPath string) ([]Plugin, error) {
 	files, err := ioutil.ReadDir(pluginFolderPath)
 

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"path/filepath"
 )
 
 //import "./parseCommand"
@@ -145,7 +146,9 @@ func main() {
 				Value: option.Value,
 			} )
 		}
-		err1 := plugin.AddResource(id, options)
+
+		abspath, err := filepath.Abs("./commonScripts/alert-ready.sh")
+		err1 := plugin.AddResource(id, options, abspath )
 		if err1 != nil {
 			fmt.Println(err1)
 			return
