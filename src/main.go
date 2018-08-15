@@ -13,12 +13,31 @@ import "./parseConfig"
 import "./options"
 import "./plugins"
 import "./ioLoop"
+import "./mainlogic"
+import "./mainlogic/dependencyGraph"
 
 type Command struct {
 	commandType string
 }
 
 func main() {
+	mainlogic.Test()
+	singleNodeGraph := dependencyGraph.New(func(){
+		fmt.Println("status has changed!")
+	})
+	
+	ready := func(x string){
+		singleNodeGraph.Node.SetReady()
+	}
+	gbuild := func(x string){
+		singleNodeGraph.Node.SetInProgress()
+	}
+	complete := func(x string){
+		singleNodeGraph.Node.SetComplete()
+	}
+
+	fmt.Println(singleNodeGraph.Node.NodeId)
+
 	options, err := options.GetOptions()
 	if err != nil {
 		fmt.Println(err)
@@ -187,6 +206,11 @@ func main() {
 		"parse": parse,
 		"add": add,
 		"remove": remove,
+		"gready": ready,
+		"gcomplete": complete,
+		"gbuild": gbuild,
+
+
 	}
 
 	commandChannel := make(chan string)
