@@ -86,11 +86,11 @@ func New() *RootNode {
 func (rootnode *RootNode) CanAddDependency(nodeId string, nodeIdDep string) bool{
 	_, depNodeInGraph := rootnode.nodes[nodeIdDep]
 	if !depNodeInGraph {
-		return false
+		return true
 	}
 	dependencies := rootnode.GetDependencies(nodeIdDep)
 	_, hasDependency := dependencies[nodeId]
-	return hasDependency
+	return !hasDependency
 }
 func (rootnode *RootNode) GetNumTargets() int {
 	return len(rootnode.Node.dependencies)
@@ -126,6 +126,10 @@ func (rootnode *RootNode) AddDependency(nodeId string, nodeIdDep string) error{
 	// also should probably check if a dependency is added twice
 	//  also  prevent circular dependencies here too (check if the node youre dependending on depends on has ancestors to you)
 	// if someone needs a hackey shitty circular thing, should be done via overloading the config type probably	
+
+	// this is bad because we add the parent as a target even if the dependency fails later on
+	// !important this is bad code.  in practice it shouldnt be hit, but i don't like that it can throw an error and fail, but
+	// have this sied
 	parentNode, ok := rootnode.nodes[nodeId]
 
 	// this if statement may be better served in a function called AddTarget (maybe)
@@ -140,8 +144,8 @@ func (rootnode *RootNode) AddDependency(nodeId string, nodeIdDep string) error{
 	}
 	//////
 
-	if rootnode.CanAddDependency(nodeId, nodeIdDep){
-		return errors.New("circular dependency")
+	if !rootnode.CanAddDependency(nodeId, nodeIdDep){
+		return errors.New("circular dependency, adding [" + nodeIdDep + "] as dependency to [" + nodeId +"]")
 	}
 	dependencyNode, depOk := rootnode.nodes[nodeIdDep]
 	if !depOk {
