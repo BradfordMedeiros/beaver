@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"strings"
 	"path/filepath"
+	"strings"
 )
 
 //import "./dependencyGraph"
@@ -35,19 +35,18 @@ func main() {
 
 	//fmt.Println("num targets is: ", singleNodeGraph.GetNumTargets())
 	//rootNode := singleNodeGraph.Node;
-	
+
 	//rootNode.AddDependency(dependentNode1)
 	//
 	//dependentNode3 := dependencyGraph.NewNode("3")
 
-	
-	ready := func(x string){
+	ready := func(x string) {
 		singleNodeGraph.Node.SetReady()
 	}
-	gbuild := func(x string){
+	gbuild := func(x string) {
 		singleNodeGraph.Node.SetInProgress()
 	}
-	complete := func(x string){
+	complete := func(x string) {
 		singleNodeGraph.Node.SetComplete()
 	}
 
@@ -65,15 +64,15 @@ func main() {
 		fmt.Println(string(jsonOptions), "\n")
 	}
 
-/*
-	graph := dependencyGraph.New()
-	fmt.Println(graph.Size())
+	/*
+		graph := dependencyGraph.New()
+		fmt.Println(graph.Size())
 
-	val, _ := json.Marshal(*graph)
-	valString := string(val)
-	fmt.Println(valString)
+		val, _ := json.Marshal(*graph)
+		valString := string(val)
+		fmt.Println(valString)
 
-	parseConfig.ParseConfig()
+		parseConfig.ParseConfig()
 	*/
 
 	list := func(val string) {
@@ -122,7 +121,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	build := func(val string){
+	build := func(val string) {
 		plugs, err := plugins.GetPlugins(options.PluginDirectory)
 		if err != nil {
 			fmt.Println("error reading plugins")
@@ -137,18 +136,18 @@ func main() {
 			}
 		}
 	}
-	parse := func(val string){
+	parse := func(val string) {
 		res, err := parseConfig.ParseYamlConfig("./test.yaml")
 		if err != nil {
 			fmt.Println("error: ", err)
-		}else{
+		} else {
 			fmt.Println("name:  ", res.ResourceName)
 			fmt.Println("dependencies: ", len(res.Dependencies))
 			fmt.Println("type:  ", res.PluginType)
 			fmt.Println("options: ", len(res.Options))
 		}
 	}
-	add := func(id string){
+	add := func(id string) {
 		config, err := parseConfig.ParseYamlConfig("./test.yaml")
 		if err != nil {
 			fmt.Println(err)
@@ -165,22 +164,22 @@ func main() {
 		fmt.Println(plugin.PluginName)
 		var options []plugins.PluginOption
 		fmt.Println("config options length is: ", len(config.Options))
-		for _, option := range(config.Options){
-			options = append(options, plugins.PluginOption { 
-				Option: option.Option, 
-				Value: option.Value,
-			} )
+		for _, option := range config.Options {
+			options = append(options, plugins.PluginOption{
+				Option: option.Option,
+				Value:  option.Value,
+			})
 		}
 
 		abspath, err := filepath.Abs("./commonScripts/alert-ready.sh")
-		err1 := plugin.AddResource(id, options, abspath + " " + id )
+		err1 := plugin.AddResource(id, options, abspath+" "+id)
 		if err1 != nil {
 			fmt.Println(err1)
 			return
 		}
 		fmt.Println("success")
 	}
-	remove := func(id string){
+	remove := func(id string) {
 		config, err := parseConfig.ParseYamlConfig("./test.yaml")
 		if err != nil {
 			fmt.Println(err)
@@ -197,11 +196,11 @@ func main() {
 		fmt.Println(plugin.PluginName)
 		var options []plugins.PluginOption
 		fmt.Println("config options length is: ", len(config.Options))
-		for _, option := range(config.Options){
-			options = append(options, plugins.PluginOption { 
-				Option: option.Option, 
-				Value: option.Value,
-			} )
+		for _, option := range config.Options {
+			options = append(options, plugins.PluginOption{
+				Option: option.Option,
+				Value:  option.Value,
+			})
 		}
 		fmt.Println("removed id: ", id)
 		err1 := plugin.RemoveResource(id, options)
@@ -213,19 +212,17 @@ func main() {
 	}
 
 	commandMap := map[string]func(string){
-		"list":     list,
-		"setup":    setup,
-		"teardown": teardown,
-		"build": build,
-		"exit": exit,
-		"parse": parse,
-		"add": add,
-		"remove": remove,
-		"gready": ready,
+		"list":      list,
+		"setup":     setup,
+		"teardown":  teardown,
+		"build":     build,
+		"exit":      exit,
+		"parse":     parse,
+		"add":       add,
+		"remove":    remove,
+		"gready":    ready,
 		"gcomplete": complete,
-		"gbuild": gbuild,
-
-
+		"gbuild":    gbuild,
 	}
 
 	commandChannel := make(chan string)
@@ -235,12 +232,11 @@ func main() {
 			commandString := <-commandChannel
 			commandArray := strings.SplitN(commandString, " ", 2)
 			command := commandArray[0]
-			
+
 			option := ""
 			if len(commandArray) > 1 {
 				option = commandArray[1]
 			}
-
 
 			fmt.Println("option is: ", option)
 			commandToExecute := commandMap[command]

@@ -1,6 +1,7 @@
 package mainlogic
 
 import "fmt"
+
 /*
 	parse config and get config
 	add it to mainlogic here
@@ -27,10 +28,10 @@ import "fmt"
 	anotherid	something here
 
 	tree has someething like this:?
-	
 
-	// maybe ready with depndencies vs ready without deps? 
-	-> onReady() 	
+
+	// maybe ready with depndencies vs ready without deps?
+	-> onReady()
 		ready
 	ready  not-ready
 
@@ -40,36 +41,35 @@ import "fmt"
 
 		ready
 	complete complete
-	
+
 		build
 	complete complete
 
-		complete	
-	complete complete	
+		complete
+	complete complete
 
 
 
 */
 
 type Resource struct {
-	// needs to have resource id, 
+	// needs to have resource id,
 	// dependencies
 	// basically clone the config value here (but it's decoupled i guess, maybe better way to do it/ without sharing code betwen)
 }
 
 type MainLogic struct {
-	Dependencies map[string]string;
+	Dependencies map[string]string
 }
 
-// func AddResource(resource Resource){  } // nicer interface 
-func (logic *MainLogic) AddResource(resourceName string, resourceValue string){
+// func AddResource(resource Resource){  } // nicer interface
+func (logic *MainLogic) AddResource(resourceName string, resourceValue string) {
 	logic.Dependencies[resourceName] = resourceValue
 }
-func (logic *MainLogic) RemoveResource(resourceName string, resourceValue string){
+func (logic *MainLogic) RemoveResource(resourceName string, resourceValue string) {
 
 }
 
-
-func Test(){
+func Test() {
 	fmt.Println("hello world")
 }
