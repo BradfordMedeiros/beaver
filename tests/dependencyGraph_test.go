@@ -1,9 +1,8 @@
-
 package tests
 
 import (
-	"testing"
 	"strconv"
+	"testing"
 )
 import "../src/mainlogic/dependencyGraph"
 
@@ -12,20 +11,20 @@ func TestBasicAddDependencyOneTarget(test *testing.T) {
 	err := graph.AddDependency("stork-automate", "stork")
 	if err != nil {
 		test.Error(err)
-	}		
+	}
 }
-func TestBasicGetDependenciesOneTarget(test *testing.T){
+func TestBasicGetDependenciesOneTarget(test *testing.T) {
 	graph := dependencyGraph.New()
-	graph.AddDependency("stork-automate", "stork")	
+	graph.AddDependency("stork-automate", "stork")
 	graph.AddDependency("stork-automate", "test")
 	dependencies := graph.GetDependencies("stork-automate")
 	if len(dependencies) != 2 {
 		test.Error("expected 2 dependency, got " + strconv.Itoa(len(dependencies)))
 	}
 }
-func TestBasicGetDependenciesTwoTargetsNoSharedDependency(test *testing.T){
+func TestBasicGetDependenciesTwoTargetsNoSharedDependency(test *testing.T) {
 	graph := dependencyGraph.New()
-	graph.AddDependency("stork-automate", "stork")	
+	graph.AddDependency("stork-automate", "stork")
 	graph.AddDependency("stork-automate", "test")
 
 	graph.AddDependency("automate-beaver", "beaver")
@@ -43,9 +42,9 @@ func TestBasicGetDependenciesTwoTargetsNoSharedDependency(test *testing.T){
 
 	}
 }
-func TestBasicGetDependenciesTwoTargetsSharedDependency(test *testing.T){
+func TestBasicGetDependenciesTwoTargetsSharedDependency(test *testing.T) {
 	graph := dependencyGraph.New()
-	graph.AddDependency("stork-automate", "stork")	
+	graph.AddDependency("stork-automate", "stork")
 	graph.AddDependency("stork-automate", "test")
 
 	graph.AddDependency("automate-beaver", "beaver")
@@ -64,12 +63,11 @@ func TestBasicGetDependenciesTwoTargetsSharedDependency(test *testing.T){
 	}
 }
 
-
-func TestComplexGetDependencies(test *testing.T){
+func TestComplexGetDependencies(test *testing.T) {
 
 }
 
-func TestComplexAddDependency(test *testing.T){
+func TestComplexAddDependency(test *testing.T) {
 	graph := dependencyGraph.New()
 	err1 := graph.AddDependency("stork-automate", "stork")
 	err2 := graph.AddDependency("automate", "scheduler")
@@ -97,7 +95,7 @@ func TestComplexAddDependency(test *testing.T){
 	}
 }
 
-func TestBasicCircularDependency(test *testing.T){
+func TestBasicCircularDependency(test *testing.T) {
 	graph := dependencyGraph.New()
 	graph.AddDependency("stork-automate", "stork")
 	err := graph.AddDependency("stork", "stork-automate")
@@ -105,15 +103,16 @@ func TestBasicCircularDependency(test *testing.T){
 		test.Error("did not error when expecting circular dependency error")
 	}
 }
-															//          stork-automate
-func TestComplexCircularDependency(test *testing.T){        //           /
-	graph := dependencyGraph.New()                          //         stork
-	err1 := graph.AddDependency("stork-automate", "stork")	//         /						       //  stork-automate
-	err2 := graph.AddDependency("automate", "scheduler")	//	 	automate                 /
-	err3 := graph.AddDependency("automate", "logic")		//		/ 	 |   \   		stork
-	err4 := graph.AddDependency("automate", "cron")			// scheduler logic cron
-	err5 := graph.AddDependency("stork", "automate")		//      \
-	err6 := graph.AddDependency("scheduler", "stork-automate")	//   -------------circular to stork-atuomate------------------
+
+//          stork-automate
+func TestComplexCircularDependency(test *testing.T) { //           /
+	graph := dependencyGraph.New()                             //         stork
+	err1 := graph.AddDependency("stork-automate", "stork")     //         /						       //  stork-automate
+	err2 := graph.AddDependency("automate", "scheduler")       //	 	automate                 /
+	err3 := graph.AddDependency("automate", "logic")           //		/ 	 |   \   		stork
+	err4 := graph.AddDependency("automate", "cron")            // scheduler logic cron
+	err5 := graph.AddDependency("stork", "automate")           //      \
+	err6 := graph.AddDependency("scheduler", "stork-automate") //   -------------circular to stork-atuomate------------------
 	if err1 != nil {
 		test.Error(err1)
 	}
