@@ -22,20 +22,18 @@ type Command struct {
 
 func main() {
 	mainlogic.Test()
-	singleNodeGraph := dependencyGraph.New(func(){
-		fmt.Println("status has changed!")
-	})
+	singleNodeGraph := dependencyGraph.New()
 
 	//singleNodeGraph.AddTarget("thing")
-	singleNodeGraph.AddDependency("testboard", "stork")
+	//singleNodeGraph.AddDependency("testboard", "stork")
 	//singleNodeGraph.AddDependency("beaver", "stork")
 	//singleNodeGraph.AddDependency("stork", "river")
 
-	fmt.Println("testboard deps are : ", singleNodeGraph.GetDepString("testboard"))
+	//fmt.Println("testboard deps are : ", singleNodeGraph.GetDepString("testboard"))
 
-	fmt.Println("stork-automate depends on stork: ", singleNodeGraph.HasDependency("tearboard", "stork"))
+	//fmt.Println("stork-automate depends on stork: ", singleNodeGraph.HasDependency("testboard", "stork"))
 
-	fmt.Println("num targets is: ", singleNodeGraph.GetNumTargets())
+	//fmt.Println("num targets is: ", singleNodeGraph.GetNumTargets())
 	//rootNode := singleNodeGraph.Node;
 	
 	//rootNode.AddDependency(dependentNode1)

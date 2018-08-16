@@ -25,8 +25,6 @@
 package dependencyGraph
 
 import "errors"
-import "fmt"
-
 
 type State int;
 const (
@@ -74,37 +72,54 @@ func(node *Node) SetError(){
 type RootNode struct {
 	Node *Node;
 	nodes map[string] *Node;
-	statusHandler func();
 }
 func NewNode(nodeId string) *Node {
 	node := Node { NodeId: nodeId, NodeState: NOTREADY, parents: make([] *Node, 0), dependencies: make([]*Node, 0) }
 	return &node
 }
-func New(changeHandler func()) *RootNode {
+func New() *RootNode {
 	node := Node { NodeId: "0", NodeState: NOTREADY, parents: make([] *Node,  0), dependencies: make([]*Node, 0) }
-	rootNode := RootNode { Node: &node, statusHandler: changeHandler , nodes: make(map[string]*Node)}
+	rootNode := RootNode { Node: &node, nodes: make(map[string]*Node)}
 	return &rootNode
 }
 
-func (node *RootNode) AddTarget(nodeId string) {
-
-}
-func (node *RootNode) HasDependency(nodeId string, nodeIdDep string) bool{
+func (rootnode *RootNode) CanAddDependency(nodeId string, nodeIdDep string) bool{
+	_, depNodeInGraph := rootnode.nodes[nodeIdDep]
+	if !depNodeInGraph {
 		return false
+	}
+	dependencies := rootnode.GetDependencies(nodeIdDep)
+	_, hasDependency := dependencies[nodeId]
+	return hasDependency
 }
 func (rootnode *RootNode) GetNumTargets() int {
 	return len(rootnode.Node.dependencies)
 }
+func traverseDependencies(nodeId string, visitedNodes map[string] *Node, allNodes map[string] *Node){
+	_, nodeVisited := visitedNodes[nodeId]
+	if nodeVisited {
+		return 
+	}
+
+	node := allNodes[nodeId]
+	for _, dependencyNode := range(node.dependencies){
+		visitedNodes[dependencyNode.NodeId] = dependencyNode
+		traverseDependencies(dependencyNode.NodeId, visitedNodes, allNodes)
+	}
+}
 func (rootnode *RootNode) GetDependencies(nodeId string) map[string]*Node {
+	dependencies := make(map[string] *Node, 0)
 	node := rootnode.nodes[nodeId]
-
-	dependencies := make([]*Node, 0)
-
-	fmt.Println(node)
-	return make([] *Node, 0)
+	traverseDependencies(node.NodeId, dependencies, rootnode.nodes)
+	return dependencies
 }
 func (rootnode *RootNode) GetDepString(nodeId string) string {
-	return "[test get dep string]"
+	dependencies := rootnode.GetDependencies(nodeId)
+	dependenciesAsString := ""
+	for _, depNode := range(dependencies){
+		dependenciesAsString = dependenciesAsString + depNode.NodeId + " "
+	}
+	return dependenciesAsString
 }
 func (rootnode *RootNode) AddDependency(nodeId string, nodeIdDep string) error{	
 	// when we add a dependency, we add it as not ready, update all the parents
@@ -116,8 +131,6 @@ func (rootnode *RootNode) AddDependency(nodeId string, nodeIdDep string) error{
 	// this if statement may be better served in a function called AddTarget (maybe)
 	// concept of target may also be stupid an unnecessary
 	if !ok {
-		fmt.Println("nodeId: ", nodeId, " not yet a target")
-
 		// use create rootTarget  instead
 		parentNode = NewNode(nodeId)
 		rootnode.nodes[nodeId] = parentNode
@@ -127,22 +140,16 @@ func (rootnode *RootNode) AddDependency(nodeId string, nodeIdDep string) error{
 	}
 	//////
 
-	if rootnode.HasDependency(nodeId, nodeIdDep){
+	if rootnode.CanAddDependency(nodeId, nodeIdDep){
 		return errors.New("circular dependency")
 	}
 	dependencyNode, depOk := rootnode.nodes[nodeIdDep]
-	fmt.Println("1: ", dependencyNode)
 	if !depOk {
 		dependencyNode = NewNode(nodeIdDep)
-		fmt.Println("2: ", dependencyNode)
 		rootnode.nodes[nodeIdDep] = dependencyNode
 	}
-	fmt.Println("3: ", dependencyNode)
-
 	parentNode.dependencies = append(parentNode.dependencies, dependencyNode)
 	dependencyNode.parents = append(dependencyNode.parents, parentNode)
-	fmt.Println("len parents is: ", len(dependencyNode.parents))
-	fmt.Println(rootnode)
 
 	return nil
 }
