@@ -9,7 +9,17 @@
 	and we resolve them if possible
 	choosing the nodes that have unresolved dependencies first
 
-	i think
+	
+	How we add nodes:
+	- graph must be acyclic
+	- if you are dumb and have circular dependencies, this can be resolved in "user-land" by creating a separate project
+	
+	- to determine if graph is acyclic we:
+	- let dep(A) => all dependencies (including child dependencies of A)
+	- let dep(A) includes X => X in the set of dependencies of A
+	- add(A,B)   => add B as a dependency of A
+	-	if dep(B) ! includes A and A != B
+	-
 */
 
 package dependencyGraph
@@ -85,8 +95,11 @@ func (node *RootNode) HasDependency(nodeId string, nodeIdDep string) bool{
 func (rootnode *RootNode) GetNumTargets() int {
 	return len(rootnode.Node.dependencies)
 }
-func (rootnode *RootNode) GetDependencies(nodeId string) [] *Node {
+func (rootnode *RootNode) GetDependencies(nodeId string) map[string]*Node {
 	node := rootnode.nodes[nodeId]
+
+	dependencies := make([]*Node, 0)
+
 	fmt.Println(node)
 	return make([] *Node, 0)
 }
