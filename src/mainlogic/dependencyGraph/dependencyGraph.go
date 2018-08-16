@@ -14,6 +14,9 @@
 
 package dependencyGraph
 
+import "errors"
+import "fmt"
+
 
 type State int;
 const (
@@ -28,8 +31,8 @@ type Node struct {
 	NodeId  string;
 	NodeState State;
 	dependencies [] *Node;
-	parent *Node;
-}
+	parents []*Node;		
+}	
 
 func (node* Node) UpdateNodeState(){
 	// this should go to the parent, check the children, update new value, 
@@ -60,23 +63,78 @@ func(node *Node) SetError(){
 
 type RootNode struct {
 	Node *Node;
+	nodes map[string] *Node;
 	statusHandler func();
 }
+func NewNode(nodeId string) *Node {
+	node := Node { NodeId: nodeId, NodeState: NOTREADY, parents: make([] *Node, 0), dependencies: make([]*Node, 0) }
+	return &node
+}
 func New(changeHandler func()) *RootNode {
-	node := Node { NodeId: "0", NodeState: NOTREADY, parent: nil, dependencies: make([]*Node, 0) }
-	rootNode := RootNode { Node: &node, statusHandler: changeHandler }
+	node := Node { NodeId: "0", NodeState: NOTREADY, parents: make([] *Node,  0), dependencies: make([]*Node, 0) }
+	rootNode := RootNode { Node: &node, statusHandler: changeHandler , nodes: make(map[string]*Node)}
 	return &rootNode
 }
-func (node *Node) AddDependency(dependency  *Node){	
+
+func (node *RootNode) AddTarget(nodeId string) {
+
+}
+func (node *RootNode) HasDependency(nodeId string, nodeIdDep string) bool{
+		return false
+}
+func (rootnode *RootNode) GetNumTargets() int {
+	return len(rootnode.Node.dependencies)
+}
+func (rootnode *RootNode) GetDependencies(nodeId string) [] *Node {
+	node := rootnode.nodes[nodeId]
+	fmt.Println(node)
+	return make([] *Node, 0)
+}
+func (rootnode *RootNode) GetDepString(nodeId string) string {
+	return "[test get dep string]"
+}
+func (rootnode *RootNode) AddDependency(nodeId string, nodeIdDep string) error{	
 	// when we add a dependency, we add it as not ready, update all the parents
 	// also should probably check if a dependency is added twice
 	//  also  prevent circular dependencies here too (check if the node youre dependending on depends on has ancestors to you)
-	// if someone needs a hackey shitty circular thing, should be done via overloading the config type probably
-}
-func (node *Node) RemoveDependency(dependency *Node){	// remove chop the dependency off, and update the parents
-	type Thing struct {
-		a string;
+	// if someone needs a hackey shitty circular thing, should be done via overloading the config type probably	
+	parentNode, ok := rootnode.nodes[nodeId]
+
+	// this if statement may be better served in a function called AddTarget (maybe)
+	// concept of target may also be stupid an unnecessary
+	if !ok {
+		fmt.Println("nodeId: ", nodeId, " not yet a target")
+
+		// use create rootTarget  instead
+		parentNode = NewNode(nodeId)
+		rootnode.nodes[nodeId] = parentNode
+
+		// children of the rootnode are  "targets"
+		rootnode.Node.dependencies = append(rootnode.Node.dependencies, parentNode)
 	}
+	//////
+
+	if rootnode.HasDependency(nodeId, nodeIdDep){
+		return errors.New("circular dependency")
+	}
+	dependencyNode, depOk := rootnode.nodes[nodeIdDep]
+	fmt.Println("1: ", dependencyNode)
+	if !depOk {
+		dependencyNode = NewNode(nodeIdDep)
+		fmt.Println("2: ", dependencyNode)
+		rootnode.nodes[nodeIdDep] = dependencyNode
+	}
+	fmt.Println("3: ", dependencyNode)
+
+	parentNode.dependencies = append(parentNode.dependencies, dependencyNode)
+	dependencyNode.parents = append(dependencyNode.parents, parentNode)
+	fmt.Println("len parents is: ", len(dependencyNode.parents))
+	fmt.Println(rootnode)
+
+	return nil
+}
+func (node *Node) RemoveDependency(nodeId string, nodeIdDep string){	// remove chop the dependency off, and update the parents
+	
 }
 
 
@@ -84,8 +142,10 @@ func (node *Node) RemoveDependency(dependency *Node){	// remove chop the depende
 /*
 
 		()------- \
-		/\         |
-	   () ()       |
+		/ \       |
+	    V  V
+	   ()-> ()       |
 	    \ /        |
+	     V
 	     ()---------
 */

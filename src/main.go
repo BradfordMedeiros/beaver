@@ -25,6 +25,23 @@ func main() {
 	singleNodeGraph := dependencyGraph.New(func(){
 		fmt.Println("status has changed!")
 	})
+
+	//singleNodeGraph.AddTarget("thing")
+	singleNodeGraph.AddDependency("testboard", "stork")
+	//singleNodeGraph.AddDependency("beaver", "stork")
+	//singleNodeGraph.AddDependency("stork", "river")
+
+	fmt.Println("testboard deps are : ", singleNodeGraph.GetDepString("testboard"))
+
+	fmt.Println("stork-automate depends on stork: ", singleNodeGraph.HasDependency("tearboard", "stork"))
+
+	fmt.Println("num targets is: ", singleNodeGraph.GetNumTargets())
+	//rootNode := singleNodeGraph.Node;
+	
+	//rootNode.AddDependency(dependentNode1)
+	//
+	//dependentNode3 := dependencyGraph.NewNode("3")
+
 	
 	ready := func(x string){
 		singleNodeGraph.Node.SetReady()
