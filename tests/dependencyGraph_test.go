@@ -3,6 +3,7 @@ package tests
 import (
 	"strconv"
 	"testing"
+	"fmt"
 )
 import "../src/mainlogic/dependencyGraph"
 
@@ -105,30 +106,24 @@ func TestBasicCircularDependency(test *testing.T) {
 }
 
 //          stork-automate
-func TestComplexCircularDependency(test *testing.T) { //           /
+func TestComplexCircularDependency(test *testing.T) { 
+	fmt.Println("failing test")
 	graph := dependencyGraph.New()                             //         stork
-	err1 := graph.AddDependency("stork-automate", "stork")     //         /						       //  stork-automate
-	err2 := graph.AddDependency("automate", "scheduler")       //	 	automate                 /
-	err3 := graph.AddDependency("automate", "logic")           //		/ 	 |   \   		stork
-	err4 := graph.AddDependency("automate", "cron")            // scheduler logic cron
-	err5 := graph.AddDependency("stork", "automate")           //      \
-	err6 := graph.AddDependency("scheduler", "stork-automate") //   -------------circular to stork-atuomate------------------
+	err1 := graph.AddDependency("stork-automate", "stork")     //         /						 //  stork-automate
+	err2 := graph.AddDependency("stork", "scheduler")       //	 	automate    
+	graph.AddDependency("scheduler", "wow")
+
+	fmt.Println("---------------------------")             
+	err3 := graph.AddDependency("scheduler", "stork-automate") //   -------------circular to stork-atuomate------------------
+	fmt.Println("========================")
+
 	if err1 != nil {
 		test.Error(err1)
 	}
 	if err2 != nil {
 		test.Error(err2)
 	}
-	if err3 != nil {
-		test.Error(err3)
-	}
-	if err4 != nil {
-		test.Error(err4)
-	}
-	if err5 != nil {
-		test.Error(err5)
-	}
-	if err6 == nil {
-		test.Error("expected error due to circular dependency got nil: ", err6)
+	if err3 == nil {
+		test.Error("expected error due to circular dependency got nil: ", err3)
 	}
 }

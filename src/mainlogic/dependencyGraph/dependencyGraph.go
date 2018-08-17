@@ -25,6 +25,7 @@
 package dependencyGraph
 
 import "errors"
+import "fmt"
 
 type State int
 
@@ -96,22 +97,26 @@ func (rootnode *RootNode) CanAddDependency(nodeId string, nodeIdDep string) bool
 func (rootnode *RootNode) GetNumTargets() int {
 	return len(rootnode.Node.dependencies)
 }
-func traverseDependencies(nodeId string, visitedNodes map[string]*Node, allNodes map[string]*Node) {
-	_, nodeVisited := visitedNodes[nodeId]
+func traverseDependencies(nodeId string, visitedNodes *map[string]*Node, allNodes map[string]*Node) {
+	fmt.Println("traversing: ", nodeId)
+	_, nodeVisited := (*visitedNodes)[nodeId]
 	if nodeVisited {
 		return
 	}
 
 	node := allNodes[nodeId]
+	(*(visitedNodes))[nodeId] = node
+
 	for _, dependencyNode := range node.dependencies {
-		visitedNodes[dependencyNode.NodeId] = dependencyNode
 		traverseDependencies(dependencyNode.NodeId, visitedNodes, allNodes)
 	}
 }
 func (rootnode *RootNode) GetDependencies(nodeId string) map[string]*Node {
 	dependencies := make(map[string]*Node, 0)
 	node := rootnode.nodes[nodeId]
-	traverseDependencies(node.NodeId, dependencies, rootnode.nodes)
+	for _, depNode := range node.dependencies {
+		traverseDependencies(depNode.NodeId, &dependencies, rootnode.nodes)
+	}
 	return dependencies
 }
 func (rootnode *RootNode) GetDepString(nodeId string) string {
@@ -142,6 +147,7 @@ func (rootnode *RootNode) AddDependency(nodeId string, nodeIdDep string) error {
 
 		// children of the rootnode are  "targets"
 		rootnode.Node.dependencies = append(rootnode.Node.dependencies, parentNode)
+		fmt.Println("creating new node: ", nodeId)
 	}
 	//////
 
