@@ -71,7 +71,6 @@ func (node *Node) SetError() {
 }
 
 type RootNode struct {
-	Node  *Node
 	nodes map[string]*Node
 }
 
@@ -80,8 +79,7 @@ func NewNode(nodeId string) *Node {
 	return &node
 }
 func New() *RootNode {
-	node := Node{NodeId: "0", NodeState: NOTREADY, parents: make([]*Node, 0), dependencies: make([]*Node, 0)}
-	rootNode := RootNode{Node: &node, nodes: make(map[string]*Node)}
+	rootNode := RootNode{nodes: make(map[string]*Node)}
 	return &rootNode
 }
 
@@ -94,11 +92,7 @@ func (rootnode *RootNode) CanAddDependency(nodeId string, nodeIdDep string) bool
 	_, hasDependency := dependencies[nodeId]
 	return !hasDependency
 }
-func (rootnode *RootNode) GetNumTargets() int {
-	return len(rootnode.Node.dependencies)
-}
 func traverseDependencies(nodeId string, visitedNodes *map[string]*Node, allNodes map[string]*Node) {
-	fmt.Println("traversing: ", nodeId)
 	_, nodeVisited := (*visitedNodes)[nodeId]
 	if nodeVisited {
 		return
@@ -119,6 +113,15 @@ func (rootnode *RootNode) GetDependencies(nodeId string) map[string]*Node {
 	}
 	return dependencies
 }
+func (rootnode *RootNode) GetNumImmediateParents(nodeId string) (int, error) {
+	node, ok := rootnode.nodes[nodeId]
+	fmt.Println("ok: ", ok)
+	if !ok {
+		return -0, errors.New("node " + nodeId + " is not in the graph")
+	}
+
+	return len(node.parents), nil
+}
 func (rootnode *RootNode) GetDepString(nodeId string) string {
 	dependencies := rootnode.GetDependencies(nodeId)
 	dependenciesAsString := ""
@@ -128,45 +131,30 @@ func (rootnode *RootNode) GetDepString(nodeId string) string {
 	return dependenciesAsString
 }
 func (rootnode *RootNode) AddDependency(nodeId string, nodeIdDep string) error {
-	// when we add a dependency, we add it as not ready, update all the parents
-	// also should probably check if a dependency is added twice
-	//  also  prevent circular dependencies here too (check if the node youre dependending on depends on has ancestors to you)
-	// if someone needs a hackey shitty circular thing, should be done via overloading the config type probably
-
-	// this is bad because we add the parent as a target even if the dependency fails later on
-	// !important this is bad code.  in practice it shouldnt be hit, but i don't like that it can throw an error and fail, but
-	// have this sied
-	parentNode, ok := rootnode.nodes[nodeId]
-
-	// this if statement may be better served in a function called AddTarget (maybe)
-	// concept of target may also be stupid an unnecessary
-	if !ok {
-		// use create rootTarget  instead
+	// maybe i should explicitly have an add target instead of doing that implicitly?
+	parentNode, parentOk := rootnode.nodes[nodeId]
+	if !parentOk {	
 		parentNode = NewNode(nodeId)
 		rootnode.nodes[nodeId] = parentNode
-
-		// children of the rootnode are  "targets"
-		rootnode.Node.dependencies = append(rootnode.Node.dependencies, parentNode)
-		fmt.Println("creating new node: ", nodeId)
 	}
-	//////
 
-	if !rootnode.CanAddDependency(nodeId, nodeIdDep) {
-		return errors.New("circular dependency, adding [" + nodeIdDep + "] as dependency to [" + nodeId + "]")
-	}
 	dependencyNode, depOk := rootnode.nodes[nodeIdDep]
 	if !depOk {
 		dependencyNode = NewNode(nodeIdDep)
 		rootnode.nodes[nodeIdDep] = dependencyNode
 	}
+	////////////////////////////////////////////////////////////
+
+	if !rootnode.CanAddDependency(nodeId, nodeIdDep) {
+		return errors.New("circular dependency, adding [" + nodeIdDep + "] as dependency to [" + nodeId + "]")
+	}
+
 	parentNode.dependencies = append(parentNode.dependencies, dependencyNode)
 	dependencyNode.parents = append(dependencyNode.parents, parentNode)
 
 	return nil
 }
-func (node *Node) RemoveDependency(nodeId string, nodeIdDep string) { // remove chop the dependency off, and update the parents
 
-}
 
 /*
 

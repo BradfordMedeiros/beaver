@@ -8,13 +8,12 @@ import (
 	"strings"
 )
 
-//import "./dependencyGraph"
 import "./parseConfig"
 import "./options"
 import "./plugins"
 import "./ioLoop"
 import "./mainlogic"
-import "./mainlogic/dependencyGraph"
+//import "./mainlogic/dependencyGraph"
 
 type Command struct {
 	commandType string
@@ -22,7 +21,7 @@ type Command struct {
 
 func main() {
 	mainlogic.Test()
-	singleNodeGraph := dependencyGraph.New()
+	//singleNodeGraph := dependencyGraph.New()
 
 	//singleNodeGraph.AddTarget("thing")
 	//singleNodeGraph.AddDependency("testboard", "stork")
@@ -41,16 +40,15 @@ func main() {
 	//dependentNode3 := dependencyGraph.NewNode("3")
 
 	ready := func(x string) {
-		singleNodeGraph.Node.SetReady()
+		//singleNodeGraph.Node.SetReady()
 	}
 	gbuild := func(x string) {
-		singleNodeGraph.Node.SetInProgress()
+		//singleNodeGraph.Node.SetInProgress()
 	}
 	complete := func(x string) {
-		singleNodeGraph.Node.SetComplete()
+		//singleNodeGraph.Node.SetComplete()
 	}
 
-	fmt.Println(singleNodeGraph.Node.NodeId)
 
 	options, err := options.GetOptions()
 	if err != nil {

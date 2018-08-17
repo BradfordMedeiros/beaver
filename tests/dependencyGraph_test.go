@@ -3,7 +3,6 @@ package tests
 import (
 	"strconv"
 	"testing"
-	"fmt"
 )
 import "../src/mainlogic/dependencyGraph"
 
@@ -22,6 +21,33 @@ func TestBasicGetDependenciesOneTarget(test *testing.T) {
 	if len(dependencies) != 2 {
 		test.Error("expected 2 dependency, got " + strconv.Itoa(len(dependencies)))
 	}
+}
+func TestBasicGetNumParentOneTarget(test *testing.T){
+	graph := dependencyGraph.New()
+	graph.AddDependency("stork-automate", "stork")
+	graph.AddDependency("stork-automate", "test")
+
+	numStorkAuto, _ := graph.GetNumImmediateParents("stork-automate")
+	if numStorkAuto != 0 {
+		test.Error("expected stork-automate to have no parents")
+	}
+
+	numStork, _ := graph.GetNumImmediateParents("stork")
+	if numStork != 1 {
+		test.Error("expected stork to have one parent")
+	}
+}
+func TestBasicGetNumParentNilTarget(test *testing.T){
+	graph := dependencyGraph.New()
+	graph.AddDependency("stork-automate", "stork")
+	graph.AddDependency("stork-automate", "test")
+
+	_, err := graph.GetNumImmediateParents("cat")
+	if err == nil {
+		test.Error("expected error for nil target")
+	}
+
+	
 }
 func TestBasicGetDependenciesTwoTargetsNoSharedDependency(test *testing.T) {
 	graph := dependencyGraph.New()
@@ -64,10 +90,6 @@ func TestBasicGetDependenciesTwoTargetsSharedDependency(test *testing.T) {
 	}
 }
 
-func TestComplexGetDependencies(test *testing.T) {
-
-}
-
 func TestComplexAddDependency(test *testing.T) {
 	graph := dependencyGraph.New()
 	err1 := graph.AddDependency("stork-automate", "stork")
@@ -106,24 +128,30 @@ func TestBasicCircularDependency(test *testing.T) {
 }
 
 //          stork-automate
-func TestComplexCircularDependency(test *testing.T) { 
-	fmt.Println("failing test")
-	graph := dependencyGraph.New()                             //         stork
-	err1 := graph.AddDependency("stork-automate", "stork")     //         /						 //  stork-automate
-	err2 := graph.AddDependency("stork", "scheduler")       //	 	automate    
-	graph.AddDependency("scheduler", "wow")
-
-	fmt.Println("---------------------------")             
-	err3 := graph.AddDependency("scheduler", "stork-automate") //   -------------circular to stork-atuomate------------------
-	fmt.Println("========================")
-
+func TestComplexCircularDependency(test *testing.T) {
+	graph := dependencyGraph.New()
+	err1 := graph.AddDependency("stork-automate", "stork")
+	err2 := graph.AddDependency("automate", "scheduler")
+	err3 := graph.AddDependency("automate", "logic")
+	err4 := graph.AddDependency("automate", "cron")
+	err5 := graph.AddDependency("stork", "automate")
+	err6 := graph.AddDependency("scheduler", "stork")
 	if err1 != nil {
 		test.Error(err1)
 	}
 	if err2 != nil {
 		test.Error(err2)
 	}
-	if err3 == nil {
-		test.Error("expected error due to circular dependency got nil: ", err3)
+	if err3 != nil {
+		test.Error(err3)
+	}
+	if err4 != nil {
+		test.Error(err4)
+	}
+	if err5 != nil {
+		test.Error(err5)
+	}
+	if err6 == nil {
+		test.Error("Expected circular dependency error, stork depends on automate which depends on scheduler, so cannot make scheduler depend on stork")
 	}
 }
