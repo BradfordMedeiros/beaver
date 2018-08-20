@@ -4,17 +4,17 @@ import (
 	"strconv"
 	"testing"
 )
-import "../src/mainlogic/dependencyGraph"
+import "../src/mainlogic/dependencyGraph/acyclicGraph"
 
 func TestBasicAddDependencyOneTarget(test *testing.T) {
-	graph := dependencyGraph.New()
+	graph := acyclicGraph.New()
 	err := graph.AddDependency("stork-automate", "stork")
 	if err != nil {
 		test.Error(err)
 	}
 }
 func TestBasicGetDependenciesOneTarget(test *testing.T) {
-	graph := dependencyGraph.New()
+	graph := acyclicGraph.New()
 	graph.AddDependency("stork-automate", "stork")
 	graph.AddDependency("stork-automate", "test")
 	dependencies := graph.GetDependencies("stork-automate")
@@ -23,7 +23,7 @@ func TestBasicGetDependenciesOneTarget(test *testing.T) {
 	}
 }
 func TestBasicGetNumParentOneTarget(test *testing.T){
-	graph := dependencyGraph.New()
+	graph := acyclicGraph.New()
 	graph.AddDependency("stork-automate", "stork")
 	graph.AddDependency("stork-automate", "test")
 
@@ -38,7 +38,7 @@ func TestBasicGetNumParentOneTarget(test *testing.T){
 	}
 }
 func TestBasicGetNumParentNilTarget(test *testing.T){
-	graph := dependencyGraph.New()
+	graph := acyclicGraph.New()
 	graph.AddDependency("stork-automate", "stork")
 	graph.AddDependency("stork-automate", "test")
 
@@ -50,7 +50,7 @@ func TestBasicGetNumParentNilTarget(test *testing.T){
 	
 }
 func TestBasicGetDependenciesTwoTargetsNoSharedDependency(test *testing.T) {
-	graph := dependencyGraph.New()
+	graph := acyclicGraph.New()
 	graph.AddDependency("stork-automate", "stork")
 	graph.AddDependency("stork-automate", "test")
 
@@ -70,7 +70,7 @@ func TestBasicGetDependenciesTwoTargetsNoSharedDependency(test *testing.T) {
 	}
 }
 func TestBasicGetDependenciesTwoTargetsSharedDependency(test *testing.T) {
-	graph := dependencyGraph.New()
+	graph := acyclicGraph.New()
 	graph.AddDependency("stork-automate", "stork")
 	graph.AddDependency("stork-automate", "test")
 
@@ -91,7 +91,7 @@ func TestBasicGetDependenciesTwoTargetsSharedDependency(test *testing.T) {
 }
 
 func TestComplexAddDependency(test *testing.T) {
-	graph := dependencyGraph.New()
+	graph := acyclicGraph.New()
 	err1 := graph.AddDependency("stork-automate", "stork")
 	err2 := graph.AddDependency("automate", "scheduler")
 	err3 := graph.AddDependency("automate", "logic")
@@ -119,7 +119,7 @@ func TestComplexAddDependency(test *testing.T) {
 }
 
 func TestBasicCircularDependency(test *testing.T) {
-	graph := dependencyGraph.New()
+	graph := acyclicGraph.New()
 	graph.AddDependency("stork-automate", "stork")
 	err := graph.AddDependency("stork", "stork-automate")
 	if err == nil {
@@ -129,7 +129,7 @@ func TestBasicCircularDependency(test *testing.T) {
 
 //          stork-automate
 func TestComplexCircularDependency(test *testing.T) {
-	graph := dependencyGraph.New()
+	graph := acyclicGraph.New()
 	err1 := graph.AddDependency("stork-automate", "stork")
 	err2 := graph.AddDependency("automate", "scheduler")
 	err3 := graph.AddDependency("automate", "logic")
