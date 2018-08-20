@@ -156,13 +156,3 @@ func (rootnode *RootNode) AddDependency(nodeId string, nodeIdDep string) error {
 }
 
 
-/*
-
-		()------- \
-		/ \       |
-	    V  V
-	   ()-> ()       |
-	    \ /        |
-	     V
-	     ()---------
-*/
