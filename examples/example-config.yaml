@@ -1,0 +1,11 @@
+name: someresourcename
+plugin-type: github
+options:
+  - option: repo
+    value: https://github.com/BradfordMedeiros/beaver.git
+depends-on:
+  - name: somedependency
+    plugin-type: github
+    options: 
+      - option: repo
+        value: https://github.com/BradfordMedeiros/stork.git

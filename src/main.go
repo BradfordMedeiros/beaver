@@ -135,7 +135,7 @@ func main() {
 		}
 	}
 	parse := func(val string) {
-		res, err := parseConfig.ParseYamlConfig("./test.yaml")
+		res, err := parseConfig.ParseYamlConfig("./examples/example-config.yaml")
 		if err != nil {
 			fmt.Println("error: ", err)
 		} else {
@@ -146,7 +146,7 @@ func main() {
 		}
 	}
 	add := func(id string) {
-		config, err := parseConfig.ParseYamlConfig("./test.yaml")
+		config, err := parseConfig.ParseYamlConfig("./examples/example-config.yaml")
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -178,7 +178,7 @@ func main() {
 		fmt.Println("success")
 	}
 	remove := func(id string) {
-		config, err := parseConfig.ParseYamlConfig("./test.yaml")
+		config, err := parseConfig.ParseYamlConfig("./examples/example-config.yaml")
 		if err != nil {
 			fmt.Println(err)
 			return
