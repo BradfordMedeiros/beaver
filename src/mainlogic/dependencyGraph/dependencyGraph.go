@@ -83,13 +83,25 @@ func (graph *DepGraph) UpdateNodeState(nodeId string) {
 		graph.nodeIdToGlobalState[nodeId] = NOTREADY
 		// update parents to be not ready
 		parents := node.GetParents()
-		fmt.Println("node marked not ready")
-		fmt.Println("node has ", len(parents), " parents")
-	}else if nodeState == READY {
+		for _, parent := range(parents){
+			fmt.Println("updating parent: ", parent.NodeId)
+		}
+
+	}else if nodeState == LOCAL_READY {
 		dependencies := node.GetDependencies()
-		fmt.Println("warning bypassing children check for now")
-		fmt.Println("node marked ready")
-		fmt.Println("node has ", len(dependencies), " dependencies")
+		
+		allReady := true
+		for _, dependency := range(dependencies){
+			nodeId := dependency.NodeId;
+			nodeState, _ = graph.nodeIdToGlobalState[nodeId] // need to handle errors better here
+			if nodeState != COMPLETE {
+				allReady = false
+			}
+		}
+
+		if allReady == true {
+			graph.nodeIdToGlobalState[nodeId] = READY
+		}
 	}
 }
 func (graph *DepGraph) SetNodeStateNotReady(nodeId string) error {

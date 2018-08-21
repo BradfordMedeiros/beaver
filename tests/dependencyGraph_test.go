@@ -65,5 +65,22 @@ func TestSetOneNodeReady(test *testing.T){
 	}
 }
 
+func TestSetOneNodeReadyDepNotReady(test *testing.T){
+	graph := New()
+	graph.AddDependency("stork-automate", "stork")
+
+	readinessStorkAuto, _ := graph.GetNodeGlobalReadiness("stork-automate")
+	if readinessStorkAuto != NOTREADY {
+		test.Error("expected stork-automate to be not ready before set")
+	}
+
+	graph.SetNodeStateReady("stork-automate")
+	readinessStorkAfterSet, _ := graph.GetNodeGlobalReadiness("stork-automate")
+
+	if readinessStorkAfterSet != NOTREADY {
+		test.Error("expected stork-automate to be not ready since set to ready but has not ready dependencies")
+	}
+}
+
 
 
