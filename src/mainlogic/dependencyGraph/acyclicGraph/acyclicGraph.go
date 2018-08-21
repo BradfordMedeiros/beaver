@@ -44,6 +44,12 @@ func New() *RootNode {
 	rootNode := RootNode{nodes: make(map[string]*Node)}
 	return &rootNode
 }
+func(node *Node) GetParents() []*Node{
+	return node.parents
+}
+func(node *Node) GetDependencies() []*Node{
+	return node.dependencies
+}
 
 func (rootnode *RootNode) CanAddDependency(nodeId string, nodeIdDep string) bool {
 	_, depNodeInGraph := rootnode.nodes[nodeIdDep]
@@ -116,9 +122,15 @@ func (rootnode *RootNode) AddDependency(nodeId string, nodeIdDep string) error {
 	return nil
 }
 
-
 func (rootnode *RootNode) HasNode(nodeId string) bool{
 	_, nodeInGraph := rootnode.nodes[nodeId]
 	return nodeInGraph
+}
+func (rootnode *RootNode) GetNode(nodeId string) (*Node, error) {
+	node, nodeInGraph := rootnode.nodes[nodeId]
+	if nodeInGraph == false {
+		return (&Node{}), errors.New("node not in graph")
+	}
+	return node, nil
 }
 
