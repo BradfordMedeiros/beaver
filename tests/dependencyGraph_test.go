@@ -82,5 +82,58 @@ func TestSetOneNodeReadyDepNotReady(test *testing.T){
 	}
 }
 
+func TestSetBasicDependency(test *testing.T){
+	graph := New()
+	graph.AddDependency("stork-automate", "stork")
+	graph.AddDependency("stork-automate", "automate")
+
+	graph.SetNodeStateLocalReady("stork")
+	graph.SetNodeStateLocalReady("stork-automate")
+	graph.SetNodeStateLocalReady("automate")
+
+
+	storkState1, _ := graph.GetNodeGlobalState("stork")
+	autoState1, _ := graph.GetNodeGlobalState("automate")
+	storkAutoState1, _ := graph.GetNodeGlobalState("stork-automate")
+
+	if storkState1 != READY {
+		test.Error("expected stork to be ready")
+	}
+	if autoState1 != READY {
+		test.Error("expected automate to be ready")
+	}
+	if storkAutoState1 != NOTREADY {
+		test.Error("expected stork-automate to be not ready")
+	}
+
+	storkState2, _ := graph.GetNodeGlobalState("stork")
+	autoState2, _ := graph.GetNodeGlobalState("automate")
+	storkAutoState2, _ := graph.GetNodeGlobalState("stork-automate")
+	if storkState2 != READY {
+		test.Error("expected stork to be ready")
+	}
+	if autoState2 != READY {
+		test.Error("expected automate to be ready")
+	}
+	if storkAutoState2 != NOTREADY {
+		test.Error("expected stork-automate to be not ready")
+	}
+
+	graph.AdvanceNodeStateQueued("stork")
+	graph.AdvanceNodeStateInProgress("stork")
+	graph.AdvanceNodeStateComplete("stork")
+	storkAutoState3, _ := graph.GetNodeGlobalState("stork-automate")
+	if storkAutoState3 != NOTREADY {
+		test.Error("expected stork-automate to be not ready")
+	}
+
+	graph.AdvanceNodeStateQueued("automate")
+	graph.AdvanceNodeStateInProgress("automate")
+	graph.AdvanceNodeStateComplete("automate")
+	storkAutoState4, _ := graph.GetNodeGlobalState("stork-automate")
+	if storkAutoState4 != READY {
+		test.Error("expected stork-automate to be ready")
+	}
+}
 
 

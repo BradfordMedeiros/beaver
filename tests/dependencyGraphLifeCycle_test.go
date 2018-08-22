@@ -57,6 +57,45 @@ func TestLifeCycle_AdvanceQueuedUnlessGlobalReady_NoDeps(test *testing.T){
 	}
 }
 
-func TestLifeCycle_AdvanceInProgressUnlessInProgress_NoDeps{
+func TestLifeCycle_AdvanceInProgressUnlessQueued_NoDeps(test *testing.T){
+	graph := New()
+	graph.AddDependency("stork-automate", "stork")
+	err := graph.AdvanceNodeStateInProgress("stork")
+	if err == nil {
+		test.Error("expected an error because advanced a non-ready node to in progress")
+	}
+	graph.SetNodeStateLocalReady("stork")
+	err1 := graph.AdvanceNodeStateInProgress("stork")
+	if err1 == nil {
+		test.Error("expected an error because advanced a non-queued node to in progress")
+	}
+	graph.AdvanceNodeStateQueued("stork")
+	err2 := graph.AdvanceNodeStateInProgress("stork")
+	if err2 != nil {
+		test.Error("expected to be able to advance to in progress since already queued")
+	}
+}
 
+func TestLifeCycle_AdvanceCompleteUnlessInProgess_NoDeps(test *testing.T){
+	graph := New()
+	graph.AddDependency("stork-automate", "stork")
+	err := graph.AdvanceNodeStateComplete("stork")
+	if err == nil {
+		test.Error("expected an error because advanced a non-ready node to in progress")
+	}
+	graph.SetNodeStateLocalReady("stork")
+	err1 := graph.AdvanceNodeStateComplete("stork")
+	if err1 == nil {
+		test.Error("expected an error because advanced a non-queued node to in progress")
+	}
+	graph.AdvanceNodeStateQueued("stork")
+	err2 := graph.AdvanceNodeStateComplete("stork")
+	if err2 != nil {
+		test.Error("expected to be able to advance to in progress since already queued")
+	}
+	graph.AdvanceNodeStateInProgress("stork")
+	err3 := graph.AdvanceNodeStateComplete("stork")
+	if err3 != nil {
+		test.Error("expected to be able to advance to complete since in progress")
+	}
 }
