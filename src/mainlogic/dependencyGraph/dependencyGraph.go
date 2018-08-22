@@ -147,7 +147,6 @@ func (graph *DepGraph) AdvanceNodeStateQueued(nodeId string) error{
 	if nodeState != READY {
 		return errors.New("nodeState advanced to queued, but node was not ready")
 	}
-
 	graph.nodeIdToGlobalState[nodeId] = QUEUED
 	return nil
 }
@@ -159,14 +158,19 @@ func (graph *DepGraph) AdvanceNodeStateInProgress(nodeId string) error{
 	if nodeState != QUEUED {
 		return errors.New("nodeState advanced to progress, but node was not queued")
 	}
-
 	graph.nodeIdToGlobalState[nodeId] = INPROGRESS
 	return nil
 }
 // on complete, then need to advance
 func (graph *DepGraph) AdvanceNodeStateComplete(nodeId string) error {
-	// check if node was in progress, if so advance it
-	// call update for parent nodes
+	nodeState, hasNode := graph.nodeIdToGlobalState[nodeId]
+	if !hasNode  {
+		return errors.New("node does not exist")
+	}
+	if nodeState != INPROGRESS {
+		return errors.New("nodeState advanced to complete, but node was not inprogress")
+	}
+	graph.nodeIdToGlobalState[nodeId] = COMPLETE
 	return nil
 }
 func (graph *DepGraph) SetNodeStateError(nodeId string) error {

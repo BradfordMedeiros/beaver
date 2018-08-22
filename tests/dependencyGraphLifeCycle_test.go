@@ -98,7 +98,7 @@ func TestLifeCycle_AdvanceCompleteUnlessInProgess_NoDeps(test *testing.T){
 		test.Error("expected an error because advanced a non-queued node to in progress")
 	}
 	graph.AdvanceNodeStateQueued("stork")
-	err2 := graph.AdvanceNodeStateComplete("stork")
+	err2 := graph.AdvanceNodeStateInProgress("stork")
 	if err2 != nil {
 		test.Error("expected to be able to advance to in progress since already queued")
 	}

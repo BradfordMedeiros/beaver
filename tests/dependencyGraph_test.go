@@ -132,7 +132,7 @@ func TestSetBasicDependency(test *testing.T){
 	graph.AdvanceNodeStateComplete("automate")
 	storkAutoState4, _ := graph.GetNodeGlobalState("stork-automate")
 	if storkAutoState4 != READY {
-		test.Error("expected stork-automate to be ready")
+		test.Error("expected stork-automate to be ready, got ")
 	}
 }
 
