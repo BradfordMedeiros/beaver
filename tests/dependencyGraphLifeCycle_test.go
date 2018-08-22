@@ -55,6 +55,11 @@ func TestLifeCycle_AdvanceQueuedUnlessGlobalReady_NoDeps(test *testing.T){
 	if err1 != nil {
 		test.Error("expected an advance queue to work now since local ready")
 	}
+	
+	finalState, _ := graph.GetNodeGlobalState("stork")
+	if finalState != QUEUED {
+		test.Error("node not queued")
+	}
 }
 
 func TestLifeCycle_AdvanceInProgressUnlessQueued_NoDeps(test *testing.T){
@@ -73,6 +78,10 @@ func TestLifeCycle_AdvanceInProgressUnlessQueued_NoDeps(test *testing.T){
 	err2 := graph.AdvanceNodeStateInProgress("stork")
 	if err2 != nil {
 		test.Error("expected to be able to advance to in progress since already queued")
+	}
+	finalState, _ := graph.GetNodeGlobalState("stork")
+	if finalState != INPROGRESS {
+		test.Error("node not in progress")
 	}
 }
 
@@ -97,5 +106,9 @@ func TestLifeCycle_AdvanceCompleteUnlessInProgess_NoDeps(test *testing.T){
 	err3 := graph.AdvanceNodeStateComplete("stork")
 	if err3 != nil {
 		test.Error("expected to be able to advance to complete since in progress")
+	}
+	finalState, _ := graph.GetNodeGlobalState("stork")
+	if finalState != COMPLETE {
+		test.Error("node not complete")
 	}
 }

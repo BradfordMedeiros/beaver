@@ -26,7 +26,6 @@ func (node *Node) SetError() {
 package dependencyGraph
 import "./acyclicGraph"
 import "errors"
-import "fmt"
 
 type State int;
 const (
@@ -69,6 +68,9 @@ func (graph *DepGraph) AddDependency(nodeId string, depNodeId string) error{
 	return nil
 }
 
+func UpdateNodeGlobalState(nodeId string){
+
+}
 func (graph *DepGraph) UpdateNodeState(nodeId string, localNodeState State) {
 	// we know which node changed, it either became not ready
 	
@@ -89,7 +91,15 @@ func (graph *DepGraph) UpdateNodeState(nodeId string, localNodeState State) {
 		}
 	}else if localNodeState == LOCAL_NOTREADY {
 		graph.nodeIdToLocalState[nodeId] = LOCAL_NOTREADY
+		globalNodeState, _ := graph.nodeIdToGlobalState[nodeId]
+		if globalNodeState == READY {
+			graph.nodeIdToGlobalState[nodeId] = NOTREADY
+		}
 
+		for _, parent := range(node.GetParents()){
+			graph.nodeIdToGlobalState[parent.NodeId] = NOTREADY
+			UpdateNodeGlobalState(parent.NodeId)
+		}
 	}else{
 		// this shouldn't ever be reached
 		// probably could just use better types to avoid
@@ -124,24 +134,22 @@ func (graph *DepGraph) UpdateNodeState(nodeId string, localNodeState State) {
 	}*/
 }
 func (graph *DepGraph) SetNodeStateLocalNotReady(nodeId string) {
-	//graph.nodeIdToLocalState[nodeId] = LOCAL_NOTREADY
-	fmt.Print("local not read")
 	graph.UpdateNodeState(nodeId, LOCAL_NOTREADY)
 }
 func (graph *DepGraph) SetNodeStateLocalReady(nodeId string) {
-	//graph.nodeIdToLocalState[nodeId] = LOCAL_READY
 	graph.UpdateNodeState(nodeId, LOCAL_READY)
-}
-func (graph *DepGraph) setNodeStateNotReady(nodeId string) error {
-	// @todo
-	// not ready, so we should traverse all parent nodes and mark them as global not ready
-	// can come from any state
-	//graph.SetNodeStateLocalNotReady(nodeId)
-	//graph.UpdateNodeState(nodeId)
-	return nil
 }
 func (graph *DepGraph) AdvanceNodeStateQueued(nodeId string) error{
 	// check if node was ready, if so advance it as queued, call a onqueue callback
+	nodeState, hasNode := graph.nodeIdToGlobalState[nodeId]
+	if !hasNode  {
+		return errors.New("node does not exist")
+	}
+	if nodeState != READY {
+		return errors.New("nodeState advanced to queued, but node was not ready")
+	}
+
+	graph.nodeIdToGlobalState[nodeId] = QUEUED
 	return nil
 }
 func (graph *DepGraph) AdvanceNodeStateInProgress(nodeId string) error{
