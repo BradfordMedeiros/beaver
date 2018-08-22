@@ -11,7 +11,7 @@ func TestInitialStateOneNode(test *testing.T) {
 	if err != nil {
 		test.Error(err)
 	}
-	readinessStorkAuto, readyErrStorkAuto := graph.GetNodeGlobalReadiness("stork-automate")
+	readinessStorkAuto, readyErrStorkAuto := graph.GetNodeGlobalState("stork-automate")
 	if readyErrStorkAuto != nil {
 		test.Error(nil)
 	}
@@ -30,7 +30,7 @@ func TestInitialStateMultipleNodes(test *testing.T) {
 		test.Error(err2)
 	}
 
-	readinessStorkAuto, readyErrStorkAuto := graph.GetNodeGlobalReadiness("stork-automate")
+	readinessStorkAuto, readyErrStorkAuto := graph.GetNodeGlobalState("stork-automate")
 	if readyErrStorkAuto != nil {
 		test.Error(nil)
 	}
@@ -38,12 +38,12 @@ func TestInitialStateMultipleNodes(test *testing.T) {
 		test.Error("expected stork-automate to be not ready")
 	}
 
-	readinessStork, _ := graph.GetNodeGlobalReadiness("stork")
+	readinessStork, _ := graph.GetNodeGlobalState("stork")
 	if readinessStork != NOTREADY {
 		test.Error("expected stork to be not ready")
 	}
 
-	readinessAuto, _ := graph.GetNodeGlobalReadiness("automate")
+	readinessAuto, _ := graph.GetNodeGlobalState("automate")
 	if readinessAuto != NOTREADY {
 		test.Error("expected automate to be not ready")
 	}
@@ -52,13 +52,13 @@ func TestSetOneNodeReady(test *testing.T){
 	graph := New()
 	graph.AddDependency("stork-automate", "stork")
 
-	readinessStorkAuto, _ := graph.GetNodeGlobalReadiness("stork")
+	readinessStorkAuto, _ := graph.GetNodeGlobalState("stork")
 	if readinessStorkAuto != NOTREADY {
 		test.Error("expected stork to be not ready before set")
 	}
 
-	graph.SetNodeStateReady("stork")
-	readinessStorkAfterSet, _ := graph.GetNodeGlobalReadiness("stork")
+	graph.SetNodeStateLocalReady("stork")
+	readinessStorkAfterSet, _ := graph.GetNodeGlobalState("stork")
 
 	if readinessStorkAfterSet != READY {
 		test.Error("expected stork to be ready since set to ready and has no dependencies")
@@ -69,13 +69,13 @@ func TestSetOneNodeReadyDepNotReady(test *testing.T){
 	graph := New()
 	graph.AddDependency("stork-automate", "stork")
 
-	readinessStorkAuto, _ := graph.GetNodeGlobalReadiness("stork-automate")
+	readinessStorkAuto, _ := graph.GetNodeGlobalState("stork-automate")
 	if readinessStorkAuto != NOTREADY {
 		test.Error("expected stork-automate to be not ready before set")
 	}
 
-	graph.SetNodeStateReady("stork-automate")
-	readinessStorkAfterSet, _ := graph.GetNodeGlobalReadiness("stork-automate")
+	graph.SetNodeStateLocalReady("stork-automate")
+	readinessStorkAfterSet, _ := graph.GetNodeGlobalState("stork-automate")
 
 	if readinessStorkAfterSet != NOTREADY {
 		test.Error("expected stork-automate to be not ready since set to ready but has not ready dependencies")

@@ -28,34 +28,33 @@ import "./acyclicGraph"
 import "errors"
 import "fmt"
 
-type GlobalState int;
+type State int;
 const (
-	LOCAL_NOTREADY = 0
-	LOCAL_READY = 1
+	LOCAL_NOTREADY State = 0
+	LOCAL_READY State = 1
 )
 
-type State int
-
+type GlobalState int
 const (
-	NOTREADY  State = 0 // the plugin has not yet alerted as being ready for build (alert not called)
-	READY     State = 1 // the plugin has called alert, is ready to  build (build has not yet been called)
-	QUEUED 	  State = 2 // the scheduler has queued this item for buildqa
-	INPROGESS State = 3 // the schedule has invokved build, but has notyet called complete
-	COMPLETE  State = 4 // the plugin has finished the build
-	ERROR     State = 5 // the plugin has declared an error, this probably needs manual reset
+	NOTREADY  GlobalState = 0 // the plugin has not yet alerted as being ready for build (alert not called)
+	READY     GlobalState = 1 // the plugin has called alert, is ready to  build (build has not yet been called)
+	QUEUED 	  GlobalState = 2 // the scheduler has queued this item for buildqa
+	INPROGRESS GlobalState = 3 // the schedule has invokved build, but has notyet called complete
+	COMPLETE  GlobalState = 4 // the plugin has finished the build
+	ERROR     GlobalState = 5 // the plugin has declared an error, this probably needs manual reset
 )
 
 type DepGraph struct {
 	acyclicGraph *acyclicGraph.RootNode;
 	nodeIdToLocalState map[string] State;
-	nodeIdToGlobalState map[string] State;
+	nodeIdToGlobalState map[string] GlobalState;
 }
 
 func New() *DepGraph  {
 	graph := &DepGraph { 
 		acyclicGraph: acyclicGraph.New(), 
 		nodeIdToLocalState: make(map[string]State), 
-		nodeIdToGlobalState: make(map[string]State),
+		nodeIdToGlobalState: make(map[string]GlobalState),
 	}
 	return graph
 }
@@ -70,14 +69,34 @@ func (graph *DepGraph) AddDependency(nodeId string, depNodeId string) error{
 	return nil
 }
 
-func (graph *DepGraph) SetNodeStateLocalNotReady(nodeId string) {
-	graph.nodeIdToLocalState[nodeId] = LOCAL_NOTREADY
-}
-func (graph *DepGraph) SetNodeStateLocalReady(nodeId string) {
-	graph.nodeIdToLocalState[nodeId] = READY
-}
-func (graph *DepGraph) UpdateNodeState(nodeId string) {
-	nodeState, _ := graph.nodeIdToLocalState[nodeId]
+func (graph *DepGraph) UpdateNodeState(nodeId string, localNodeState State) {
+	// we know which node changed, it either became not ready
+	
+	node, _ := graph.acyclicGraph.GetNode(nodeId)
+	if localNodeState == LOCAL_READY {
+		graph.nodeIdToLocalState[nodeId] = LOCAL_READY
+
+		allReady := true
+		for _, dependency := range(node.GetDependencies()){
+			nodeState, _ := graph.nodeIdToGlobalState[dependency.NodeId]
+			if nodeState != COMPLETE {
+				allReady = false
+				break
+			}
+		}
+		if allReady {
+			graph.nodeIdToGlobalState[nodeId] = READY
+		}
+	}else if localNodeState == LOCAL_NOTREADY {
+		graph.nodeIdToLocalState[nodeId] = LOCAL_NOTREADY
+
+	}else{
+		// this shouldn't ever be reached
+		// probably could just use better types to avoid
+		panic("got state besides local not ready and ready")
+	}
+
+	/*nodeState, _ := graph.nodeIdToLocalState[nodeId]
 	node, _ := graph.acyclicGraph.GetNode(nodeId)
 	if nodeState == LOCAL_NOTREADY {
 		graph.nodeIdToGlobalState[nodeId] = NOTREADY
@@ -99,50 +118,47 @@ func (graph *DepGraph) UpdateNodeState(nodeId string) {
 			}
 		}
 
-		if allReady == true {
+		if allReady {
 			graph.nodeIdToGlobalState[nodeId] = READY
 		}
-	}
+	}*/
 }
-func (graph *DepGraph) SetNodeStateNotReady(nodeId string) error {
+func (graph *DepGraph) SetNodeStateLocalNotReady(nodeId string) {
+	//graph.nodeIdToLocalState[nodeId] = LOCAL_NOTREADY
+	fmt.Print("local not read")
+	graph.UpdateNodeState(nodeId, LOCAL_NOTREADY)
+}
+func (graph *DepGraph) SetNodeStateLocalReady(nodeId string) {
+	//graph.nodeIdToLocalState[nodeId] = LOCAL_READY
+	graph.UpdateNodeState(nodeId, LOCAL_READY)
+}
+func (graph *DepGraph) setNodeStateNotReady(nodeId string) error {
 	// @todo
 	// not ready, so we should traverse all parent nodes and mark them as global not ready
 	// can come from any state
-	graph.SetNodeStateLocalNotReady(nodeId)
-	graph.UpdateNodeState(nodeId)
+	//graph.SetNodeStateLocalNotReady(nodeId)
+	//graph.UpdateNodeState(nodeId)
 	return nil
 }
-func (graph *DepGraph) SetNodeStateReady(nodeId string) error {
-	// @todo
-	// node global ready, so we should simply mark this.  do not do anything since parents need completion
-	// must come from not ready state
-	graph.SetNodeStateLocalReady(nodeId)
-	graph.UpdateNodeState(nodeId)
-
+func (graph *DepGraph) AdvanceNodeStateQueued(nodeId string) error{
+	// check if node was ready, if so advance it as queued, call a onqueue callback
 	return nil
 }
-func (graph *DepGraph) SetNodeStateQueued(nodeId string) error{
-	// @todo
-	// simple marker
-	// must come from ready state
-	return nil
-}
-func (graph *DepGraph) SetNodeStateInProgress(nodeId string) error{
-	// @todo 
-	// simple marker
+func (graph *DepGraph) AdvanceNodeStateInProgress(nodeId string) error{
 	// must come from queued state
+	// check if node was queued, if so advance as in progress, call callback
 	return nil
 }
-func (graph *DepGraph) SetNodeStateComplete(nodeId string) error {
-	// @todo 
-	// should traverse parents, and if the parent has all complete childen, set the parent ready
-	// must come from in progress state
+// on complete, then need to advance
+func (graph *DepGraph) AdvanceNodeStateComplete(nodeId string) error {
+	// check if node was in progress, if so advance it
+	// call update for parent nodes
 	return nil
 }
 func (graph *DepGraph) SetNodeStateError(nodeId string) error {
 	return nil
 }
-func (graph *DepGraph) GetNodeGlobalReadiness(nodeId string) (State, error) {
+func (graph *DepGraph) GetNodeGlobalState(nodeId string) (GlobalState, error) {
 	nodeState, nodeOk := graph.nodeIdToGlobalState[nodeId]
 	if !nodeOk {
 		return 0, errors.New("invalid node")
