@@ -140,7 +140,6 @@ func (graph *DepGraph) SetNodeStateLocalReady(nodeId string) {
 	graph.UpdateNodeState(nodeId, LOCAL_READY)
 }
 func (graph *DepGraph) AdvanceNodeStateQueued(nodeId string) error{
-	// check if node was ready, if so advance it as queued, call a onqueue callback
 	nodeState, hasNode := graph.nodeIdToGlobalState[nodeId]
 	if !hasNode  {
 		return errors.New("node does not exist")
@@ -153,8 +152,15 @@ func (graph *DepGraph) AdvanceNodeStateQueued(nodeId string) error{
 	return nil
 }
 func (graph *DepGraph) AdvanceNodeStateInProgress(nodeId string) error{
-	// must come from queued state
-	// check if node was queued, if so advance as in progress, call callback
+	nodeState, hasNode := graph.nodeIdToGlobalState[nodeId]
+	if !hasNode  {
+		return errors.New("node does not exist")
+	}
+	if nodeState != QUEUED {
+		return errors.New("nodeState advanced to progress, but node was not queued")
+	}
+
+	graph.nodeIdToGlobalState[nodeId] = INPROGRESS
 	return nil
 }
 // on complete, then need to advance
