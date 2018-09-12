@@ -26,6 +26,7 @@ func (node *Node) SetError() {
 package dependencyGraph
 import "./acyclicGraph"
 import "errors"
+import "fmt"
 
 type State int;
 const (
@@ -84,7 +85,7 @@ func (graph *DepGraph) UpdateNodeGlobalState(nodeId string){
 	}
 
 	globalNodeState, _  := graph.nodeIdToGlobalState[nodeId]
-	if allReady {
+	if allReady && graph.nodeIdToLocalState[nodeId] == LOCAL_READY {
 		if globalNodeState == NOTREADY { 		 // if we are not ready, become ready
 			graph.nodeIdToGlobalState[nodeId] = READY
 		}else if globalNodeState == READY {		 // if we are ready, just stay the same
@@ -94,13 +95,11 @@ func (graph *DepGraph) UpdateNodeGlobalState(nodeId string){
 		}else if globalNodeState == INPROGRESS { // if we are in progress, stay the same
 			// do nothing
 		}else if globalNodeState == COMPLETE {   // if we are complete, inform our parents
-			for _, parent := range(node.GetParents()){
-				graph.UpdateNodeGlobalState(parent.NodeId)
-			}
+			// do nothing
 		}else{
 			panic("case not handled")
 		}	
-	}else{
+	}else if !allReady || graph.nodeIdToLocalState[nodeId] == LOCAL_NOTREADY {
 		if globalNodeState == NOTREADY { 		// if we are not ready, stay not ready
 			// do nothing
 		}else if globalNodeState == READY {     // if we are ready, become not ready
@@ -111,14 +110,13 @@ func (graph *DepGraph) UpdateNodeGlobalState(nodeId string){
 			// do nothing
 		}else if globalNodeState == COMPLETE {
 			graph.nodeIdToGlobalState[nodeId] = NOTREADY
-			for _, parent := range(node.GetParents()){
-				graph.UpdateNodeGlobalState(parent.NodeId)
-			}
-		}
-		
-		
-		// if we are complete, become not ready (when we set complete, need to check if we are local not ready, and then update)
+		}	
+	}else{
+		panic("unexpected case")
 	}	
+	for _, parent := range(node.GetParents()){
+		graph.UpdateNodeGlobalState(parent.NodeId)
+	}
 }
 
 // this function simply updates one nodes global standing, based upon its local state
@@ -146,10 +144,14 @@ func (graph *DepGraph) UpdateNodeState(nodeId string, localNodeState State) {
 		// this would only affect parent nodes if we transition from complete, which notready won't trasition from
 		graph.nodeIdToLocalState[nodeId] = LOCAL_NOTREADY
 		globalNodeState, _ := graph.nodeIdToGlobalState[nodeId]
-		if globalNodeState == READY {
+		if globalNodeState == READY || globalNodeState == COMPLETE  {
+			fmt.Println("set to not ready from global node")
+			graph.nodeIdToGlobalState[nodeId] = NOTREADY
+		}else if globalNodeState == NOTREADY {
 			graph.nodeIdToGlobalState[nodeId] = NOTREADY
 		}else{
-			panic("not yet implemented behavior of setting a node local not ready besides from basic ready state")
+			fmt.Println("curr node state: ", globalNodeState)
+			panic("not yet implemented behavior of setting a node local not ready besides from basic ready or complete state")
 		}
 	}else{
 		// this shouldn't ever be reached

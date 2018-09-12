@@ -136,4 +136,37 @@ func TestSetBasicDependency(test *testing.T){
 	}
 }
 
+func TestSetNotDependency(test *testing.T){
+	graph := New()
+	graph.AddDependency("stork-automate", "stork")
+	graph.AddDependency("stork-automate", "automate")
+
+	graph.SetNodeStateLocalReady("stork")
+	graph.SetNodeStateLocalReady("stork-automate")
+	graph.SetNodeStateLocalReady("automate")
+
+
+	graph.AdvanceNodeStateQueued("stork")
+	graph.AdvanceNodeStateInProgress("stork")
+	graph.AdvanceNodeStateComplete("stork")
+	graph.AdvanceNodeStateQueued("automate")
+	graph.AdvanceNodeStateInProgress("automate")
+	graph.AdvanceNodeStateComplete("automate")
+	storkAutoState4, _ := graph.GetNodeGlobalState("stork-automate")
+	if storkAutoState4 != READY {
+		test.Error("expected stork-automate to be ready, got ")
+	}
+	graph.SetNodeStateLocalNotReady("automate")
+	automateState, _ := graph.GetNodeGlobalState("automate")
+	if automateState != NOTREADY {
+		test.Error("expected global automate state to be not ready since set local not ready got ", automateState)
+	} 
+
+	storkAutoState5, _ := graph.GetNodeGlobalState("stork-automate")
+	if storkAutoState5 != NOTREADY {
+		test.Error("expected stork-automate to be not ready, got ", storkAutoState5)
+	}
+}
+
+
 
