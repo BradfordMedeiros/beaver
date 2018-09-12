@@ -146,10 +146,17 @@ depends-on:
 	- resource-name: cool binary
 	  plugin-type: binary-versions
 	  options:
-		url: /filesystempathtobinary
+		url: /filesystempathtobinary
+
 		version: 0.2 (latest?)
 	  
 
 ~~~~
 
 ---
+
+main flow
+- parse config
+- add depenedencies to main logic, and setup plugins slaves
+- respond to events sent by slave (ready/notready/error/buildcomplete)
+- control slaves via build, teardown, setup, etc
