@@ -62,6 +62,9 @@ type MainLogic struct {
 	Dependencies map[string]string
 }
 
+func New(onResourceStateChange func(string)) MainLogic {
+	return MainLogic { Dependencies: make(map[string]string)}
+}
 // func AddResource(resource Resource){  } // nicer interface
 func (logic *MainLogic) AddResource(resourceName string, resourceValue string) {
 	logic.Dependencies[resourceName] = resourceValue
