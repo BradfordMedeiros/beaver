@@ -67,7 +67,7 @@ func (logic *MainLogic) AddResource(resourceName string, resourceValue string) {
 	logic.Dependencies[resourceName] = resourceValue
 }
 func (logic *MainLogic) RemoveResource(resourceName string, resourceValue string) {
-
+	panic("not yet implemented")
 }
 
 func Test() {
