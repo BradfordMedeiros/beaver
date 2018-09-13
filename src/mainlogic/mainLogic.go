@@ -1,56 +1,6 @@
 package mainlogic
-
+import "./dependencyGraph"
 import "fmt"
-
-/*
-	parse config and get config
-	add it to mainlogic here
-	open server to start listening for alert statuses
-	when we get the status we call the relevant command hooks here
-	command hooks here trigger rebuilds or whatever outside
-*/
-// add all resources here
-// add resource id
-// remove resource id
-// get resource status
-// on resources status change
-/*
-	deleting a resource will also delete all of the child resources --> maybe should support multiple targets
-	// when this supports more than one target we can support this
-
-	someid: Resource,
-	anotherid: Resource,
-	etc
-
-	and maybe the dependency graph right here
-		somideid
-		/		\
-	anotherid	something here
-
-	tree has someething like this:?
-
-
-	// maybe ready with depndencies vs ready without deps?
-	-> onReady()
-		ready
-	ready  not-ready
-
-	goes to
-		ready
-	build not-ready
-
-		ready
-	complete complete
-
-		build
-	complete complete
-
-		complete
-	complete complete
-
-
-
-*/
 
 type Resource struct {
 	// needs to have resource id,
@@ -59,20 +9,27 @@ type Resource struct {
 }
 
 type MainLogic struct {
-	Dependencies map[string]string
+	dependencyGraph dependencyGraph.DepGraph
 }
 
 func New(onResourceStateChange func(string)) MainLogic {
-	return MainLogic { Dependencies: make(map[string]string)}
+	return MainLogic { dependencyGraph: *dependencyGraph.New(func(onStateChange string){
+		fmt.Println("state change")
+	})}
 }
 // func AddResource(resource Resource){  } // nicer interface
-func (logic *MainLogic) AddResource(resourceName string, resourceValue string) {
-	logic.Dependencies[resourceName] = resourceValue
-}
-func (logic *MainLogic) RemoveResource(resourceName string, resourceValue string) {
-	panic("not yet implemented")
+func (logic *MainLogic) AddResource(resourceName string) {
+	logic.dependencyGraph.AddNode(resourceName)
 }
 
-func Test() {
-	fmt.Println("hello world")
+func (logic *MainLogic) AddDependency(resourceName string, resourceNameDep string){
+	logic.dependencyGraph.AddDependency(resourceName, resourceNameDep)
 }
+
+func(logic * MainLogic) SetReady(resourceName  string) {
+	logic.dependencyGraph.SetNodeStateLocalReady(resourceName)
+}
+func (logic *MainLogic) SetNodeReady(resourceName string){
+	logic.dependencyGraph.SetNodeStateLocalNotReady(resourceName)
+}
+

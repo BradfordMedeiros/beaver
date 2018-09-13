@@ -23,13 +23,15 @@ type DepGraph struct {
 	acyclicGraph *acyclicGraph.RootNode;
 	nodeIdToLocalState map[string] State;
 	nodeIdToGlobalState map[string] GlobalState;
+	onStateChange func(string);
 }
 
-func New() *DepGraph  {
+func New(onStateChange func(string)) *DepGraph  {
 	graph := &DepGraph { 
 		acyclicGraph: acyclicGraph.New(), 
 		nodeIdToLocalState: make(map[string]State), 
 		nodeIdToGlobalState: make(map[string]GlobalState),
+		onStateChange: onStateChange,
 	}
 	return graph
 }
@@ -103,6 +105,10 @@ func (graph *DepGraph) UpdateNodeGlobalState(nodeId string){
 	}
 }
 
+func (graph *DepGraph) triggerStateChange(){
+	graph.onStateChange("wow")
+}
+
 // this function simply updates one nodes global standing, based upon its local state
 func (graph *DepGraph) UpdateNodeState(nodeId string, localNodeState State) {
 	
@@ -145,10 +151,12 @@ func (graph *DepGraph) UpdateNodeState(nodeId string, localNodeState State) {
 func (graph *DepGraph) SetNodeStateLocalNotReady(nodeId string) {
 	graph.UpdateNodeState(nodeId, LOCAL_NOTREADY)
 	graph.UpdateNodeGlobalState(nodeId)
+	graph.triggerStateChange()
 }
 func (graph *DepGraph) SetNodeStateLocalReady(nodeId string) {
 	graph.UpdateNodeState(nodeId, LOCAL_READY)
 	graph.UpdateNodeGlobalState(nodeId)
+	graph.triggerStateChange()
 }
 func (graph *DepGraph) AdvanceNodeStateQueued(nodeId string) error{
 	nodeState, hasNode := graph.nodeIdToGlobalState[nodeId]
@@ -160,6 +168,7 @@ func (graph *DepGraph) AdvanceNodeStateQueued(nodeId string) error{
 	}
 	graph.nodeIdToGlobalState[nodeId] = QUEUED
 	graph.UpdateNodeGlobalState(nodeId)
+	graph.triggerStateChange()
 
 	return nil
 }
@@ -173,6 +182,7 @@ func (graph *DepGraph) AdvanceNodeStateInProgress(nodeId string) error{
 	}
 	graph.nodeIdToGlobalState[nodeId] = INPROGRESS
 	graph.UpdateNodeGlobalState(nodeId)
+	graph.triggerStateChange()
 
 	return nil
 }
@@ -187,10 +197,12 @@ func (graph *DepGraph) AdvanceNodeStateComplete(nodeId string) error {
 	}
 	graph.nodeIdToGlobalState[nodeId] = COMPLETE
 	graph.UpdateNodeGlobalState(nodeId)
+	graph.triggerStateChange()
 
 	return nil
 }
 func (graph *DepGraph) SetNodeStateError(nodeId string) error {
+	panic("not yet implemented")
 	return nil
 }
 func (graph *DepGraph) GetNodeGlobalState(nodeId string) (GlobalState, error) {

@@ -26,7 +26,6 @@ func TestAddSingleNodeNoDependency(test *testing.T){
 	if readinessAuto1 != READY {
 		test.Error("expected automate to be ready")
 	}
-
 }
 
 func TestInitialStateOneNode(test *testing.T) {
