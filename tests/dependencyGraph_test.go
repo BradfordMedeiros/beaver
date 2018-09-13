@@ -5,6 +5,30 @@ import (
 )
 import . "../src/mainlogic/dependencyGraph"
 
+func TestAddSingleNodeNoDependency(test *testing.T){
+	graph := New()
+	err := graph.AddNode("automate")
+	if err != nil {
+		test.Error(err)
+	}
+
+	readinessAuto, errAuto := graph.GetNodeGlobalState("automate")
+	if errAuto != nil {
+		test.Error(errAuto)
+	}
+	if readinessAuto != NOTREADY {
+		test.Error("expected automate to be not ready")
+	}
+
+	graph.SetNodeStateLocalReady("automate")
+
+	readinessAuto1, _:= graph.GetNodeGlobalState("automate")
+	if readinessAuto1 != READY {
+		test.Error("expected automate to be ready")
+	}
+
+}
+
 func TestInitialStateOneNode(test *testing.T) {
 	graph := New()
 	err := graph.AddDependency("stork-automate", "stork")

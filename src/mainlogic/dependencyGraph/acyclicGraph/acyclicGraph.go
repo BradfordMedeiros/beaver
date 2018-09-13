@@ -97,6 +97,15 @@ func (rootnode *RootNode) GetDepString(nodeId string) string {
 	}
 	return dependenciesAsString
 }
+
+func (rootnode *RootNode) AddNode(nodeId string) error {
+	_, hasNode := rootnode.nodes[nodeId]
+	if hasNode {
+		return errors.New("node already in graph")
+	}
+	rootnode.nodes[nodeId] = NewNode(nodeId)
+	return nil
+}
 func (rootnode *RootNode) AddDependency(nodeId string, nodeIdDep string) error {
 	// maybe i should explicitly have an add target instead of doing that implicitly?
 	parentNode, parentOk := rootnode.nodes[nodeId]

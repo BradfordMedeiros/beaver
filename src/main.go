@@ -9,8 +9,12 @@ import (
 import "./parseConfig"
 import "./mainlogic"
 
-func AddDependenciesToLogic(config parseConfig.Config){
+func AddDependenciesToLogic(logic mainlogic.MainLogic, config parseConfig.Config){
 	fmt.Println("add dependencies placeholder")
+	fmt.Println(config)
+
+	//resourceName := config.ResourceName
+
 }
 func SetupSlaves(logic mainlogic.MainLogic){
 	// for each slave, check if valid resource, then add resource
@@ -33,7 +37,7 @@ func main() {
 	if err != nil {
 		panic("could not parse config")
 	}
-	AddDependenciesToLogic(config)
+	AddDependenciesToLogic(mainsystem, config)
 	SetupSlaves(mainsystem)
 
 	signalChannel := make(chan os.Signal)

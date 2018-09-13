@@ -1,28 +1,3 @@
-
-/*
-
-func (node *Node) SetNotReady() {
-	node.NodeState = NOTREADY
-	node.UpdateNodeState()
-}
-func (node *Node) SetReady() {
-	node.NodeState = READY
-	node.UpdateNodeState()
-}
-func (node *Node) SetInProgress() {
-	node.NodeState = INPROGESS
-	node.UpdateNodeState()
-}
-func (node *Node) SetComplete() {
-	node.NodeState = COMPLETE
-	node.UpdateNodeState()
-}
-func (node *Node) SetError() {
-	node.NodeState = ERROR
-	node.UpdateNodeState()
-}
-*/
-
 package dependencyGraph
 import "./acyclicGraph"
 import "errors"
@@ -59,6 +34,15 @@ func New() *DepGraph  {
 	return graph
 }
 
+func (graph *DepGraph) AddNode(nodeId string) error {
+	err := graph.acyclicGraph.AddNode(nodeId)
+	if err !=nil {
+		return err
+	}
+	graph.nodeIdToLocalState[nodeId] = LOCAL_NOTREADY
+	graph.nodeIdToGlobalState[nodeId] = NOTREADY
+	return nil
+}
 func (graph *DepGraph) AddDependency(nodeId string, depNodeId string) error{
 	err := graph.acyclicGraph.AddDependency(nodeId, depNodeId)
 	if err !=nil {
@@ -145,7 +129,6 @@ func (graph *DepGraph) UpdateNodeState(nodeId string, localNodeState State) {
 		graph.nodeIdToLocalState[nodeId] = LOCAL_NOTREADY
 		globalNodeState, _ := graph.nodeIdToGlobalState[nodeId]
 		if globalNodeState == READY || globalNodeState == COMPLETE  {
-			fmt.Println("set to not ready from global node")
 			graph.nodeIdToGlobalState[nodeId] = NOTREADY
 		}else if globalNodeState == NOTREADY {
 			graph.nodeIdToGlobalState[nodeId] = NOTREADY
