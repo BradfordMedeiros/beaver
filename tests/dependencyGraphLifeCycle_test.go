@@ -6,7 +6,7 @@ import (
 import . "../src/mainlogic/dependencyGraph"
 
 func TestSingleNodeLifecycle(test *testing.T){
-	graph := New()
+	graph := New(func(test string){})
 	graph.AddDependency("stork-automate", "stork")
 	readinessStork1, _ := graph.GetNodeGlobalState("stork")
 	if readinessStork1 != NOTREADY {
@@ -38,7 +38,7 @@ func TestSingleNodeLifecycle(test *testing.T){
 }
 
 func TestLifeCycle_AdvanceQueuedUnlessGlobalReady_NoDeps(test *testing.T){
-	graph := New()
+	graph := New(func (test string){ })
 	graph.AddDependency("stork-automate", "stork")
 	readinessStork1, _ := graph.GetNodeGlobalState("stork")
 	if readinessStork1 != NOTREADY {
@@ -63,7 +63,7 @@ func TestLifeCycle_AdvanceQueuedUnlessGlobalReady_NoDeps(test *testing.T){
 }
 
 func TestLifeCycle_AdvanceInProgressUnlessQueued_NoDeps(test *testing.T){
-	graph := New()
+	graph := New(func(test string){})
 	graph.AddDependency("stork-automate", "stork")
 	err := graph.AdvanceNodeStateInProgress("stork")
 	if err == nil {
@@ -86,7 +86,7 @@ func TestLifeCycle_AdvanceInProgressUnlessQueued_NoDeps(test *testing.T){
 }
 
 func TestLifeCycle_AdvanceCompleteUnlessInProgess_NoDeps(test *testing.T){
-	graph := New()
+	graph := New(func (test string){ })
 	graph.AddDependency("stork-automate", "stork")
 	err := graph.AdvanceNodeStateComplete("stork")
 	if err == nil {

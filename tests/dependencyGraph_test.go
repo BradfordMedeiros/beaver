@@ -6,7 +6,7 @@ import (
 import . "../src/mainlogic/dependencyGraph"
 
 func TestAddSingleNodeNoDependency(test *testing.T){
-	graph := New()
+	graph := New(func(test string){})
 	err := graph.AddNode("automate")
 	if err != nil {
 		test.Error(err)
@@ -29,7 +29,7 @@ func TestAddSingleNodeNoDependency(test *testing.T){
 }
 
 func TestInitialStateOneNode(test *testing.T) {
-	graph := New()
+	graph := New(func(test string){})
 	err := graph.AddDependency("stork-automate", "stork")
 	if err != nil {
 		test.Error(err)
@@ -43,7 +43,7 @@ func TestInitialStateOneNode(test *testing.T) {
 	}
 }
 func TestInitialStateMultipleNodes(test *testing.T) {
-	graph := New()
+	graph := New(func(test string){})
 	err := graph.AddDependency("stork-automate", "stork")
 	err2 := graph.AddDependency("stork-automate", "automate")
 	if err != nil {
@@ -72,7 +72,7 @@ func TestInitialStateMultipleNodes(test *testing.T) {
 	}
 }
 func TestSetOneNodeReady(test *testing.T){
-	graph := New()
+	graph := New(func(test string){})
 	graph.AddDependency("stork-automate", "stork")
 
 	readinessStorkAuto, _ := graph.GetNodeGlobalState("stork")
@@ -89,7 +89,7 @@ func TestSetOneNodeReady(test *testing.T){
 }
 
 func TestSetOneNodeReadyDepNotReady(test *testing.T){
-	graph := New()
+	graph := New(func(test string){})
 	graph.AddDependency("stork-automate", "stork")
 
 	readinessStorkAuto, _ := graph.GetNodeGlobalState("stork-automate")
@@ -106,7 +106,7 @@ func TestSetOneNodeReadyDepNotReady(test *testing.T){
 }
 
 func TestSetBasicDependency(test *testing.T){
-	graph := New()
+	graph := New(func(test string){})
 	graph.AddDependency("stork-automate", "stork")
 	graph.AddDependency("stork-automate", "automate")
 
@@ -160,7 +160,7 @@ func TestSetBasicDependency(test *testing.T){
 }
 
 func TestSetNotDependency(test *testing.T){
-	graph := New()
+	graph := New(func(test string){})
 	graph.AddDependency("stork-automate", "stork")
 	graph.AddDependency("stork-automate", "automate")
 
