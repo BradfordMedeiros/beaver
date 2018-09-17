@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"path/filepath"
 )
 import "./parseConfig"
 import "./mainlogic"
@@ -24,20 +25,17 @@ func AddDependenciesToLogic(logic mainlogic.MainLogic, config parseConfig.Config
 
 	var options []plugins.PluginOption
 	for _, option := range config.Options {
-		fmt.Println("new option ", option)
+		options = append(options, plugins.PluginOption{
+			Option: option.Option,
+			Value:  option.Value,
+		})
 	}
 
-	/*	fmt.Println("config options length is: ", len(config.Options))
-		for _, option := range config.Options {
-			options = append(options, plugins.PluginOption{
-				Option: option.Option,
-				Value:  option.Value,
-			})
-		}
-
-		abspath, err := filepath.Abs("./commonScripts/alert-ready.sh")
-		err1 := plugin.AddResource(id, options, abspath+" "+id)*/
-	fmt.Println(len(options))	
+	abspath, _ := filepath.Abs("./commonScripts/alert-ready.sh")
+	fmt.Println(abspath)
+	//id := "test id"
+	//err1 := plugins.AddResource(id, options, abspath+" "+id)
+	//fmt.Println(len(options))	
 	
 
 
