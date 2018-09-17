@@ -15,6 +15,7 @@ import "./plugins/pluginResource"
 
 
 func main() {	
+	// INIT PART
 	config, err := parseConfig.ParseYamlConfig("./examples/simple-config.yaml")
 	logic := mainlogic.New(func(nodeIdChange string){
 		fmt.Println("node id change: ", nodeIdChange)
@@ -31,7 +32,9 @@ func main() {
 	logic.AddResource(resourceName)
 
 	folderPath, _ := filepath.Abs("./res/plugins")
-	pluginGroup, _ := plugins.Load(folderPath)
+	pluginGroup, _ := plugins.Load(folderPath, func(eventName string){
+		fmt.Println("event: ", eventName)
+	})
 	pluginGroup.Setup()
 
 	// setup individual slaves
@@ -54,10 +57,15 @@ func main() {
 		panic("resource error add")
 	}
 
-	// wait for siterm (aka ctrl-c from terminal)
+	// DURING LIFE OF PROGRAM PART
+
+	// wait for sigterm (aka ctrl-c from terminal)
 	signalChannel := make(chan os.Signal)
 	signal.Notify(signalChannel, os.Interrupt, syscall.SIGTERM)
 	<-signalChannel
+
+
+	// DEINIT
 
 	errRemRes := pluginGroup.RemoveResource(config.PluginType, "test-id", options)
 	if errRemRes != nil {

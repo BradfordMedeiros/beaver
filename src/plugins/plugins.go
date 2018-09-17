@@ -8,11 +8,12 @@ import "./pluginResource"
 
 type PluginGroup struct {
 	pluginMapping map[string] pluginResource.Plugin
+	onEvent func(string)
 }
 
-func Load(pluginFolderPath string)(PluginGroup, error) {
+func Load(pluginFolderPath string, onEvent func(string))(PluginGroup, error) {
 	pluginMapping := make(map[string] pluginResource.Plugin)
-	group := PluginGroup { pluginMapping: pluginMapping }
+	group := PluginGroup { pluginMapping: pluginMapping, onEvent: onEvent }
 
 	files, err := ioutil.ReadDir(pluginFolderPath)
 
