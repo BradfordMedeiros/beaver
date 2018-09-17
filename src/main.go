@@ -9,6 +9,7 @@ import (
 )
 import "./parseConfig"
 import "./mainlogic"
+import "./mainlogic/dependencyGraph"
 import "./plugins"
 import "./plugins/pluginResource"
 import "./ioLoop"
@@ -19,8 +20,8 @@ func main() {
 	fmt.Println("----------INIT SECTION----------\n")
 
 	config, err := parseConfig.ParseYamlConfig("./examples/simple-config.yaml")
-	logic := mainlogic.New(func(nodeIdChange string){
-		fmt.Println("node id change: ", nodeIdChange)
+	logic := mainlogic.New(func(nodeIdChange string, newState dependencyGraph.GlobalState){
+		fmt.Println("node id change: id: ", nodeIdChange, " state: ", newState)
 	})
 	if err != nil {
 		panic("could not parse config")
@@ -75,6 +76,10 @@ func main() {
 				case commandString := <-commandChannel: {
 					if commandString == "quit" {
 						os.Exit(0)
+					}else if commandString == "ready1" {
+						logic.SetNodeReady(resourceName)	// these are race conditions.  be careful. ok for now
+					}else if commandString == "notready1" {
+						logic.SetNodeNotReady(resourceName)
 					}
 				}
 			}

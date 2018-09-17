@@ -23,10 +23,10 @@ type DepGraph struct {
 	acyclicGraph *acyclicGraph.RootNode;
 	nodeIdToLocalState map[string] State;
 	nodeIdToGlobalState map[string] GlobalState;
-	onStateChange func(string);
+	onStateChange func(nodeId string, newState GlobalState);
 }
 
-func New(onStateChange func(string)) *DepGraph  {
+func New(onStateChange func(nodeId string, newState GlobalState)) *DepGraph  {
 	graph := &DepGraph { 
 		acyclicGraph: acyclicGraph.New(), 
 		nodeIdToLocalState: make(map[string]State), 
@@ -42,7 +42,7 @@ func (graph *DepGraph) AddNode(nodeId string) error {
 		return err
 	}
 	graph.nodeIdToLocalState[nodeId] = LOCAL_NOTREADY
-	graph.nodeIdToGlobalState[nodeId] = NOTREADY
+	graph.setNodeGlobalState(nodeId, NOTREADY)
 	return nil
 }
 func (graph *DepGraph) AddDependency(nodeId string, depNodeId string) error{
@@ -55,6 +55,12 @@ func (graph *DepGraph) AddDependency(nodeId string, depNodeId string) error{
 	return nil
 }
 
+// helper function just to set the global state array value and trigger update
+// all updates should go through this so we can message all updates externally 
+func (graph *DepGraph) setNodeGlobalState(nodeId string, newState GlobalState){
+	graph.nodeIdToGlobalState[nodeId] = newState
+	graph.onStateChange("state change here", newState)
+}
 
 // given a new graph, starting at a change at nodeId, traverse the graph to ensure the effects propogate
 func (graph *DepGraph) UpdateNodeGlobalState(nodeId string){
@@ -73,7 +79,7 @@ func (graph *DepGraph) UpdateNodeGlobalState(nodeId string){
 	globalNodeState, _  := graph.nodeIdToGlobalState[nodeId]
 	if allReady && graph.nodeIdToLocalState[nodeId] == LOCAL_READY {
 		if globalNodeState == NOTREADY { 		 // if we are not ready, become ready
-			graph.nodeIdToGlobalState[nodeId] = READY
+			graph.setNodeGlobalState(nodeId, READY)
 		}else if globalNodeState == READY {		 // if we are ready, just stay the same
 			// do nothing
 		}else if globalNodeState == QUEUED {	 // if we are queued, just stay the same ()
@@ -89,13 +95,13 @@ func (graph *DepGraph) UpdateNodeGlobalState(nodeId string){
 		if globalNodeState == NOTREADY { 		// if we are not ready, stay not ready
 			// do nothing
 		}else if globalNodeState == READY {     // if we are ready, become not ready
-			graph.nodeIdToGlobalState[nodeId] = NOTREADY
+			graph.setNodeGlobalState(nodeId, NOTREADY)
 		}else if globalNodeState == QUEUED {    // if we are queued, just stay the same (we cannot remove a queued build)
 			// do nothing
 		}else if globalNodeState == INPROGRESS {  // if we are queued, just stay the same
 			// do nothing
 		}else if globalNodeState == COMPLETE {
-			graph.nodeIdToGlobalState[nodeId] = NOTREADY
+			graph.setNodeGlobalState(nodeId, NOTREADY)
 		}	
 	}else{
 		panic("unexpected case")
@@ -106,7 +112,7 @@ func (graph *DepGraph) UpdateNodeGlobalState(nodeId string){
 }
 
 func (graph *DepGraph) triggerStateChange(){
-	graph.onStateChange("wow")
+	fmt.Println("trigger state change placeholder: this signified whole graph updated")
 }
 
 // this function simply updates one nodes global standing, based upon its local state
@@ -127,7 +133,7 @@ func (graph *DepGraph) UpdateNodeState(nodeId string, localNodeState State) {
 			}
 		}
 		if allReady {
-			graph.nodeIdToGlobalState[nodeId] = READY
+			graph.setNodeGlobalState(nodeId, READY)
 		}
 	}else if localNodeState == LOCAL_NOTREADY {	
 		// make not ready, so we update the global state only if we were in ready position
@@ -135,9 +141,9 @@ func (graph *DepGraph) UpdateNodeState(nodeId string, localNodeState State) {
 		graph.nodeIdToLocalState[nodeId] = LOCAL_NOTREADY
 		globalNodeState, _ := graph.nodeIdToGlobalState[nodeId]
 		if globalNodeState == READY || globalNodeState == COMPLETE  {
-			graph.nodeIdToGlobalState[nodeId] = NOTREADY
+			graph.setNodeGlobalState(nodeId, NOTREADY)
 		}else if globalNodeState == NOTREADY {
-			graph.nodeIdToGlobalState[nodeId] = NOTREADY
+			graph.setNodeGlobalState(nodeId, NOTREADY)
 		}else{
 			fmt.Println("curr node state: ", globalNodeState)
 			panic("not yet implemented behavior of setting a node local not ready besides from basic ready or complete state")
@@ -166,7 +172,7 @@ func (graph *DepGraph) AdvanceNodeStateQueued(nodeId string) error{
 	if nodeState != READY {
 		return errors.New("nodeState advanced to queued, but node was not ready")
 	}
-	graph.nodeIdToGlobalState[nodeId] = QUEUED
+	graph.setNodeGlobalState(nodeId, QUEUED)
 	graph.UpdateNodeGlobalState(nodeId)
 	graph.triggerStateChange()
 
@@ -180,7 +186,7 @@ func (graph *DepGraph) AdvanceNodeStateInProgress(nodeId string) error{
 	if nodeState != QUEUED {
 		return errors.New("nodeState advanced to progress, but node was not queued")
 	}
-	graph.nodeIdToGlobalState[nodeId] = INPROGRESS
+	graph.setNodeGlobalState(nodeId, INPROGRESS)
 	graph.UpdateNodeGlobalState(nodeId)
 	graph.triggerStateChange()
 
@@ -195,7 +201,7 @@ func (graph *DepGraph) AdvanceNodeStateComplete(nodeId string) error {
 	if nodeState != INPROGRESS {
 		return errors.New("nodeState advanced to complete, but node was not inprogress")
 	}
-	graph.nodeIdToGlobalState[nodeId] = COMPLETE
+	graph.setNodeGlobalState(nodeId, COMPLETE)
 	graph.UpdateNodeGlobalState(nodeId)
 	graph.triggerStateChange()
 

@@ -1,6 +1,5 @@
 package mainlogic
 import "./dependencyGraph"
-import "fmt"
 
 type Resource struct {
 	// needs to have resource id,
@@ -12,10 +11,8 @@ type MainLogic struct {
 	dependencyGraph dependencyGraph.DepGraph
 }
 
-func New(onResourceStateChange func(string)) MainLogic {
-	return MainLogic { dependencyGraph: *dependencyGraph.New(func(onStateChange string){
-		fmt.Println("state change")
-	})}
+func New(onResourceStateChange func(nodeId string, newState dependencyGraph.GlobalState)) MainLogic {
+	return MainLogic { dependencyGraph: *dependencyGraph.New(onResourceStateChange)}
 }
 // func AddResource(resource Resource){  } // nicer interface
 func (logic *MainLogic) AddResource(resourceName string) {
@@ -26,10 +23,10 @@ func (logic *MainLogic) AddDependency(resourceName string, resourceNameDep strin
 	logic.dependencyGraph.AddDependency(resourceName, resourceNameDep)
 }
 
-func(logic * MainLogic) SetReady(resourceName  string) {
+func(logic * MainLogic) SetNodeReady(resourceName  string) {
 	logic.dependencyGraph.SetNodeStateLocalReady(resourceName)
 }
-func (logic *MainLogic) SetNodeReady(resourceName string){
+func (logic *MainLogic) SetNodeNotReady(resourceName string){
 	logic.dependencyGraph.SetNodeStateLocalNotReady(resourceName)
 }
 
