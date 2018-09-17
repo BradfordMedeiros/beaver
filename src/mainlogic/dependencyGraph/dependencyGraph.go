@@ -23,10 +23,10 @@ type DepGraph struct {
 	acyclicGraph *acyclicGraph.RootNode;
 	nodeIdToLocalState map[string] State;
 	nodeIdToGlobalState map[string] GlobalState;
-	onStateChange func(nodeId string, newState GlobalState);
+	onStateChange func(nodeId string, oldState GlobalState, newState GlobalState);
 }
 
-func New(onStateChange func(nodeId string, newState GlobalState)) *DepGraph  {
+func New(onStateChange func(nodeId string, oldState GlobalState, newState GlobalState)) *DepGraph  {
 	graph := &DepGraph { 
 		acyclicGraph: acyclicGraph.New(), 
 		nodeIdToLocalState: make(map[string]State), 
@@ -59,7 +59,7 @@ func (graph *DepGraph) AddDependency(nodeId string, depNodeId string) error{
 // all updates should go through this so we can message all updates externally 
 func (graph *DepGraph) setNodeGlobalState(nodeId string, newState GlobalState){
 	graph.nodeIdToGlobalState[nodeId] = newState
-	graph.onStateChange("state change here", newState)
+	graph.onStateChange(nodeId, graph.nodeIdToGlobalState[nodeId], newState)
 }
 
 // given a new graph, starting at a change at nodeId, traverse the graph to ensure the effects propogate

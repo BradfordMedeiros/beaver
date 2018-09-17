@@ -20,8 +20,11 @@ func main() {
 	fmt.Println("----------INIT SECTION----------\n")
 
 	config, err := parseConfig.ParseYamlConfig("./examples/simple-config.yaml")
-	logic := mainlogic.New(func(nodeIdChange string, newState dependencyGraph.GlobalState){
-		fmt.Println("node id change: id: ", nodeIdChange, " state: ", newState)
+	logic := mainlogic.New(func(nodeIdChange string, oldState dependencyGraph.GlobalState, newState dependencyGraph.GlobalState){
+		fmt.Println("node id change: id: ", nodeIdChange, "old state : ", oldState, " new state: ", newState)
+		// add in old state to this, and then new state
+		// then we can do things like if becomes ready, we set to queued, if queued set to in progress and invoke build, etc
+
 	})
 	if err != nil {
 		panic("could not parse config")

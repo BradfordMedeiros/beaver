@@ -11,7 +11,7 @@ type MainLogic struct {
 	dependencyGraph dependencyGraph.DepGraph
 }
 
-func New(onResourceStateChange func(nodeId string, newState dependencyGraph.GlobalState)) MainLogic {
+func New(onResourceStateChange func(nodeId string, oldState dependencyGraph.GlobalState, newState dependencyGraph.GlobalState)) MainLogic {
 	return MainLogic { dependencyGraph: *dependencyGraph.New(onResourceStateChange)}
 }
 // func AddResource(resource Resource){  } // nicer interface
