@@ -16,7 +16,7 @@ import "./plugins/pluginResource"
 
 func main() {	
 	config, err := parseConfig.ParseYamlConfig("./examples/simple-config.yaml")
-	mainlogic.New(func(nodeIdChange string){
+	logic := mainlogic.New(func(nodeIdChange string){
 		fmt.Println("node id change: ", nodeIdChange)
 	})
 	if err != nil {
@@ -28,13 +28,11 @@ func main() {
 
 	resourceName := config.ResourceName
 	fmt.Println("add resource name here: ", resourceName)
-	//logic.AddResource(resourceName)
+	logic.AddResource(resourceName)
 
-	pluginValues, _ := plugins.GetPlugins("./res/plugins")
-	for _, plugin := range(pluginValues){
-		plugin.Setup("0") // what is the point of this string? should get rid of no id is needed to setup...
-	}
-
+	folderPath, _ := filepath.Abs("./res/plugins")
+	pluginGroup, _ := plugins.Load(folderPath)
+	pluginGroup.Setup()
 
 	// setup individual slaves
 	// for each slave, check if valid resource, then add resource
@@ -50,13 +48,23 @@ func main() {
 
 	abspath, _ := filepath.Abs("./commonScripts/alert-ready.sh")
 	fmt.Println(abspath)
+	errAddRes := pluginGroup.AddResource(config.PluginType, "test-id", options, abspath)
+	fmt.Println("error: ", errAddRes)
+	if errAddRes != nil {
+		panic("resource error add")
+	}
 
 	// wait for siterm (aka ctrl-c from terminal)
 	signalChannel := make(chan os.Signal)
 	signal.Notify(signalChannel, os.Interrupt, syscall.SIGTERM)
 	<-signalChannel
 
+	errRemRes := pluginGroup.RemoveResource(config.PluginType, "test-id", options)
+	if errRemRes != nil {
+		panic("resource error remove")
+	}
+
 	// teardown slaves after signal received
-	fmt.Println("teardown slaves placeholder")
+	pluginGroup.Teardown()
 
 }

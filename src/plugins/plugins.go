@@ -1,62 +1,87 @@
 package plugins
 
+import "fmt"
 import "io/ioutil"
 import "path/filepath"
 import "errors"
 import "./pluginResource"
 
 type PluginGroup struct {
-
+	pluginMapping map[string] pluginResource.Plugin
 }
 
-func GetPlugins(pluginFolderPath string) ([]pluginResource.Plugin, error) {
+func Load(pluginFolderPath string)(PluginGroup, error) {
+	pluginMapping := make(map[string] pluginResource.Plugin)
+	group := PluginGroup { pluginMapping: pluginMapping }
+
 	files, err := ioutil.ReadDir(pluginFolderPath)
 
-	plugins := []pluginResource.Plugin{}
 	for _, file := range files {
 		if file.IsDir() {
 			fileName := file.Name()
 			fullPath := filepath.Join(pluginFolderPath, fileName)
+			fmt.Println("fullpath: ", fullPath)
 
 			loadedPlugin := pluginResource.Plugin{PluginName: fileName, PluginFolderPath: fullPath}
 			if !loadedPlugin.IsValidResource() {
-				return nil, errors.New("Invalid resources for plugin: " + loadedPlugin.PluginName)
+				return group, errors.New("Invalid resources for plugin: " + loadedPlugin.PluginName)
 			}
-			plugins = append(plugins, loadedPlugin)
+			pluginMapping[fileName] = loadedPlugin
 		} else {
-			return nil, errors.New("file found in plugin folder that is not a valid plugin")
+			return group, errors.New("file found in plugin folder that is not a valid plugin")
 		}
 	}
 
 	if err != nil {
-		return nil, err
+		return group, err
 	}
 
-	return plugins, nil
-}
-
-
-func New() PluginGroup {
-	group := PluginGroup { }
-	return group
+	return group, nil
 }
 
 // teardown all the plugins 
 func (pluginGroup *PluginGroup) Setup(){
-
+	for _, plugin := range(pluginGroup.pluginMapping){
+		fmt.Println("setup here: ", plugin)
+		plugin.Setup("0")
+	}
 }
 
 // add a specific resource
-func (pluginGroup *PluginGroup) AddResource() {
-
+func (pluginGroup *PluginGroup) AddResource(
+	resourceName string, 
+	id string, 
+	options []pluginResource.PluginOption, 
+	alertScriptLocation string,
+) error {
+	plugin, hasResource := pluginGroup.pluginMapping[resourceName]
+	if !hasResource {
+		return errors.New("no resource named " + resourceName)
+	}
+	fmt.Println(plugin)
+	plugin.AddResource(id, options, alertScriptLocation)
+	return nil
 }
 
 // remove a specific resource
-func (pluginGroup *PluginGroup) RemoveResource(){
-
+func (pluginGroup *PluginGroup) RemoveResource(
+	resourceName string, 
+	id string, 
+	options []pluginResource.PluginOption, 
+) error{
+	plugin, hasResource := pluginGroup.pluginMapping[resourceName]
+	if !hasResource {
+		return errors.New("no resource named " + resourceName)
+	}
+	fmt.Println(plugin)
+	plugin.RemoveResource(id, options)
+	return nil
 }
 
 // setup all the plugins
 func (pluginGroup *PluginGroup) Teardown(){
-
+	for _, plugin := range(pluginGroup.pluginMapping){
+		fmt.Println("teardown here: ", plugin)
+		plugin.Teardown("0")
+	}
 }

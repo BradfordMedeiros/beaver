@@ -36,6 +36,7 @@ type PluginOption struct {
 func (plugin *Plugin) Setup(id string) error {
 	fmt.Println("plugin setup: ", plugin.PluginName)
 	payload := plugin.getSetupLocation() + " " + id
+	fmt.Println("payload: ", payload)
 	command := exec.Command("/bin/sh", "-c", payload)
 	command.Dir = plugin.PluginFolderPath
 	err := command.Run()
