@@ -10,22 +10,39 @@ import (
 import "./parseConfig"
 import "./mainlogic"
 import "./plugins"
+import "./plugins/pluginResource"
 
-func AddDependenciesToLogic(logic mainlogic.MainLogic, config parseConfig.Config){
-	fmt.Println("add dependencies placeholder")
+
+
+func main() {	
+	config, err := parseConfig.ParseYamlConfig("./examples/simple-config.yaml")
+	mainlogic.New(func(nodeIdChange string){
+		fmt.Println("node id change: ", nodeIdChange)
+	})
+	if err != nil {
+		panic("could not parse config")
+	}
+
+	// Add dependencies from the configuration
 	fmt.Println(config)
 
 	resourceName := config.ResourceName
-	logic.AddResource(resourceName)
+	fmt.Println("add resource name here: ", resourceName)
+	//logic.AddResource(resourceName)
 
 	pluginValues, _ := plugins.GetPlugins("./res/plugins")
 	for _, plugin := range(pluginValues){
 		plugin.Setup("0") // what is the point of this string? should get rid of no id is needed to setup...
 	}
 
-	var options []plugins.PluginOption
+
+	// setup individual slaves
+	// for each slave, check if valid resource, then add resource
+	fmt.Println("setup slaves placeholder")
+
+	var options []pluginResource.PluginOption
 	for _, option := range config.Options {
-		options = append(options, plugins.PluginOption{
+		options = append(options, pluginResource.PluginOption{
 			Option: option.Option,
 			Value:  option.Value,
 		})
@@ -33,37 +50,13 @@ func AddDependenciesToLogic(logic mainlogic.MainLogic, config parseConfig.Config
 
 	abspath, _ := filepath.Abs("./commonScripts/alert-ready.sh")
 	fmt.Println(abspath)
-	//id := "test id"
-	//err1 := plugins.AddResource(id, options, abspath+" "+id)
-	//fmt.Println(len(options))	
-	
 
-
-}
-func SetupSlaves(logic mainlogic.MainLogic){
-	// for each slave, check if valid resource, then add resource
-	fmt.Println("setup slaves placeholder")
-}
-func TeardownSlaves (logic mainlogic.MainLogic){
-	// for each slave, call teardown
-	fmt.Println("teardown slaves placeholder")
-}
-
-
-func main() {	
-	config, err := parseConfig.ParseYamlConfig("./examples/simple-config.yaml")
-	mainsystem := mainlogic.New(func(nodeIdChange string){
-		fmt.Println("node id change: ", nodeIdChange)
-	})
-	if err != nil {
-		panic("could not parse config")
-	}
-	AddDependenciesToLogic(mainsystem, config)
-	SetupSlaves(mainsystem)
-
+	// wait for siterm (aka ctrl-c from terminal)
 	signalChannel := make(chan os.Signal)
 	signal.Notify(signalChannel, os.Interrupt, syscall.SIGTERM)
 	<-signalChannel
 
-	TeardownSlaves(mainsystem)
+	// teardown slaves after signal received
+	fmt.Println("teardown slaves placeholder")
+
 }
