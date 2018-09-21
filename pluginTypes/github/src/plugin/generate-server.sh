@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-cat resources | awk '{ printf "/"; printf $1; printf  " "; printf "notify-send "; print $1 }'
+cat resources | awk '{ printf "/"; printf $1; printf  " "; printf $3;  }'

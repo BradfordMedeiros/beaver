@@ -75,7 +75,7 @@ func main() {
 	
 
 
-	errAddRes := pluginGroup.AddResource(config.PluginType, "test-id", options, alertScriptPath)
+	errAddRes := pluginGroup.AddResource(config.PluginType, config.ResourceName, options, alertScriptPath)
 	fmt.Println("error: ", errAddRes)
 	if errAddRes != nil {
 		panic("resource error add")
