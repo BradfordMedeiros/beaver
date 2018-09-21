@@ -3,3 +3,6 @@ plugin-type: github
 options:
   - option: repo
     value: https://github.com/BradfordMedeiros/beaver.git
+  - option: clean
+    value: beaver
+    

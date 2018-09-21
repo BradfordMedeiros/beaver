@@ -65,11 +65,7 @@ func (pluginGroup *PluginGroup) AddResource(
 }
 
 // remove a specific resource
-func (pluginGroup *PluginGroup) RemoveResource(
-	resourceName string, 
-	id string, 
-	options []pluginResource.PluginOption, 
-) error{
+func (pluginGroup *PluginGroup) RemoveResource(resourceName string, id string, options []pluginResource.PluginOption) error{
 	plugin, hasResource := pluginGroup.pluginMapping[resourceName]
 	if !hasResource {
 		return errors.New("no resource named " + resourceName)
@@ -85,4 +81,17 @@ func (pluginGroup *PluginGroup) Teardown(){
 		fmt.Println("teardown here: ", plugin)
 		plugin.Teardown("0")
 	}
+}
+
+func (pluginGroup *PluginGroup) Build(resourceName string, id string, options []pluginResource.PluginOption) error {
+	plugin, hasResource := pluginGroup.pluginMapping[resourceName]
+	if !hasResource {
+		return errors.New("no resource named " + resourceName)
+	}
+	fmt.Println(plugin)
+	err := plugin.Build(id, options)
+	if err != nil {
+		return err
+	}
+	return nil
 }

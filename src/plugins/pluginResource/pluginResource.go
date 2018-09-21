@@ -50,11 +50,13 @@ func (plugin *Plugin) Teardown(id string) error {
 	err := command.Run()
 	return err
 }
-func (plugin *Plugin) Build(id string, options string) error {
+func (plugin *Plugin) Build(id string, options[] PluginOption) error {
 	fmt.Println("plugin build: ", plugin.PluginName)
-	payload := plugin.getBuildLocation() + " " + id + " '" + options +"'" 
+	payload := plugin.getBuildLocation()
 	command := exec.Command("/bin/sh", "-c", payload)
 	command.Dir = plugin.PluginFolderPath
+	command.Env = append(command.Env, "ID="+id)	// should check about properly escaping this?
+	command.Env = append(command.Env, "OPTIONS=" + pluginOptionsToString(options))
 	// should probably add ENV of the build folder here so you can do  cp -r somefile $DESTINATION
 	err := command.Run()
 	return err

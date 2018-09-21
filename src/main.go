@@ -19,12 +19,33 @@ func main() {
 	// INIT PART
 	fmt.Println("----------INIT SECTION----------\n")
 
+	folderPath, _ := filepath.Abs("./res/plugins")
+		pluginGroup, _ := plugins.Load(folderPath, func(eventName string){
+		fmt.Println("event: ", eventName)
+	})
+
 	config, err := parseConfig.ParseYamlConfig("./examples/simple-config.yaml")
-	logic := mainlogic.New(func(nodeIdChange string, oldState dependencyGraph.GlobalState, newState dependencyGraph.GlobalState){
-		fmt.Println("node id change: id: ", nodeIdChange, "old state : ", oldState, " new state: ", newState)
+
+	var options []pluginResource.PluginOption
+	for _, option := range config.Options {
+		options = append(options, pluginResource.PluginOption{
+			Option: option.Option,
+			Value:  option.Value,
+		})
+	}
+
+	logic := mainlogic.New(func(nodeId string, oldState dependencyGraph.GlobalState, newState dependencyGraph.GlobalState){
+		fmt.Println("node id change: id: ", nodeId, "old state : ", oldState, " new state: ", newState)
 		// add in old state to this, and then new state
 		// then we can do things like if becomes ready, we set to queued, if queued set to in progress and invoke build, etc
 
+		if (oldState == dependencyGraph.NOTREADY && newState == dependencyGraph.READY){
+			fmt.Println(nodeId, " became ready")
+			pluginGroup.Build(config.PluginType, nodeId, options)
+
+		}else if (oldState == dependencyGraph.READY && newState == dependencyGraph.NOTREADY){
+			fmt.Println(nodeId, " became not ready")
+		}
 	})
 	if err != nil {
 		panic("could not parse config")
@@ -37,23 +58,15 @@ func main() {
 	fmt.Println("add resource name here: ", resourceName)
 	logic.AddResource(resourceName)
 
-	folderPath, _ := filepath.Abs("./res/plugins")
-	pluginGroup, _ := plugins.Load(folderPath, func(eventName string){
-		fmt.Println("event: ", eventName)
-	})
+	
+	// calls the setup.sh scripts for each plugin
 	pluginGroup.Setup()
 
 	// setup individual slaves
 	// for each slave, check if valid resource, then add resource
 	fmt.Println("setup slaves placeholder")
 
-	var options []pluginResource.PluginOption
-	for _, option := range config.Options {
-		options = append(options, pluginResource.PluginOption{
-			Option: option.Option,
-			Value:  option.Value,
-		})
-	}
+	
 
 	abspath, _ := filepath.Abs("./commonScripts/alert-ready.sh")
 	fmt.Println(abspath)
@@ -105,6 +118,8 @@ func main() {
 	}
 
 	// teardown slaves after signal received
+
+	// calls the teardown.sh scripts for each plugin
 	pluginGroup.Teardown()
 
 }

@@ -58,8 +58,9 @@ func (graph *DepGraph) AddDependency(nodeId string, depNodeId string) error{
 // helper function just to set the global state array value and trigger update
 // all updates should go through this so we can message all updates externally 
 func (graph *DepGraph) setNodeGlobalState(nodeId string, newState GlobalState){
+	oldState := graph.nodeIdToGlobalState[nodeId]
 	graph.nodeIdToGlobalState[nodeId] = newState
-	graph.onStateChange(nodeId, graph.nodeIdToGlobalState[nodeId], newState)
+	graph.onStateChange(nodeId, oldState, newState)
 }
 
 // given a new graph, starting at a change at nodeId, traverse the graph to ensure the effects propogate
