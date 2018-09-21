@@ -12,5 +12,10 @@ echo "GITHUB IS $GITHUB_URL" >> log
 echo "CLEANUP IS $CLEANUP" >> log
 
 git clone $GITHUB_URL
-sleep 2
+sleep 5
+
 rm -r $CLEAN
+
+$FINISHED
+
+

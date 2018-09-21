@@ -83,13 +83,18 @@ func (pluginGroup *PluginGroup) Teardown(){
 	}
 }
 
-func (pluginGroup *PluginGroup) Build(resourceName string, id string, options []pluginResource.PluginOption) error {
+func (pluginGroup *PluginGroup) Build(
+	resourceName string, 
+	id string, 
+	options []pluginResource.PluginOption, 
+	alertBuiltLocation string,
+) error {
 	plugin, hasResource := pluginGroup.pluginMapping[resourceName]
 	if !hasResource {
 		return errors.New("no resource named " + resourceName)
 	}
 	fmt.Println(plugin)
-	err := plugin.Build(id, options)
+	err := plugin.Build(id, options, alertBuiltLocation)
 	if err != nil {
 		return err
 	}
