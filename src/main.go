@@ -19,6 +19,12 @@ func main() {
 	// INIT PART
 	fmt.Println("----------INIT SECTION----------\n")
 
+	alertScriptPath, _ := filepath.Abs("./commonScripts/alert-ready.sh")
+	fmt.Println(alertScriptPath)
+
+	readyScriptPath, _ := filepath.Abs("./commonScripts/alert-finished.sh")
+	fmt.Println(readyScriptPath)
+
 	folderPath, _ := filepath.Abs("./res/plugins")
 		pluginGroup, _ := plugins.Load(folderPath, func(eventName string){
 		fmt.Println("event: ", eventName)
@@ -41,7 +47,7 @@ func main() {
 
 		if (oldState == dependencyGraph.NOTREADY && newState == dependencyGraph.READY){
 			fmt.Println(nodeId, " became ready")
-			pluginGroup.Build(config.PluginType, nodeId, options)
+			pluginGroup.Build(config.PluginType, nodeId, options, readyScriptPath)
 
 		}else if (oldState == dependencyGraph.READY && newState == dependencyGraph.NOTREADY){
 			fmt.Println(nodeId, " became not ready")
@@ -68,9 +74,8 @@ func main() {
 
 	
 
-	abspath, _ := filepath.Abs("./commonScripts/alert-ready.sh")
-	fmt.Println(abspath)
-	errAddRes := pluginGroup.AddResource(config.PluginType, "test-id", options, abspath)
+
+	errAddRes := pluginGroup.AddResource(config.PluginType, "test-id", options, alertScriptPath)
 	fmt.Println("error: ", errAddRes)
 	if errAddRes != nil {
 		panic("resource error add")
