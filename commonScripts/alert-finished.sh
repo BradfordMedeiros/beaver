@@ -3,4 +3,4 @@
 SCRIPT_DIR=$(dirname "$0")
 cd "$SCRIPT_DIR"
 
-echo "$1 is ready" >> log
+echo "$1 is built" >> log
